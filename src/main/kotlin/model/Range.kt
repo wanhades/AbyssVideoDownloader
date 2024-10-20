@@ -1,6 +1,6 @@
 package model
 
 data class Range(
-    val start: Int? = null,
-    val end: Int? = null
+    val start: Long? = null,
+    val end: Long? = null
 )

@@ -64,8 +64,8 @@ class ScraperService(
     }
 
 
-    private fun generateRanges(size: Int, step: Int = 2097152): List<IntRange> {
-        val ranges = mutableListOf<IntRange>()
+    private fun generateRanges(size: Long, step: Long = 2097152): List<LongRange> {
+        val ranges = mutableListOf<LongRange>()
 
         // if the size is less than or equal to step size return a single range
         if (size <= step) {
@@ -73,7 +73,7 @@ class ScraperService(
             return ranges
         }
 
-        var start = 0
+        var start = 0L
         while (start < size) {
             val end = minOf(start + step, size) // ensure the end doesn't exceed the size
             ranges.add(start until end)
