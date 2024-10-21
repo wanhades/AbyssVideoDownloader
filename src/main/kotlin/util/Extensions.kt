@@ -3,6 +3,8 @@ package util
 import com.google.gson.Gson
 import java.io.File
 import java.io.FileNotFoundException
+import java.net.URI
+import java.net.URL
 
 fun Any.toJson(): String = Gson().toJson(this)
 
@@ -13,6 +15,24 @@ fun systemDownloadFolder(): File {
 
 fun String.getVideoID(): String {
     return this.substringAfter("v=")
+}
+
+fun String.extractReferer(): String? {
+    return try {
+        val url = URI(this).toURL()
+        "${url.protocol}://${url.host}/"
+    } catch (e: Exception) {
+        null
+    }
+}
+
+fun String.isValidUrl(): Boolean {
+    return try {
+        URI(this).toURL() // Try to construct a URL object
+        true      // If successful, it's a valid URL
+    } catch (e: Exception) {
+        false     // If an exception is thrown, it's not a valid URL
+    }
 }
 
 fun formatBytes(bytes: Long?): String {

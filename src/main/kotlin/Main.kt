@@ -5,9 +5,7 @@ import com.abmo.services.ProviderDispatcher
 import com.abmo.services.ScraperService
 import com.abmo.util.CryptoHelper
 import com.abmo.util.JavaScriptRunner
-import util.formatBytes
-import util.getVideoID
-import util.isValidPath
+import util.*
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -25,6 +23,7 @@ suspend fun main(args: Array<String>) {
     val headers = cliArguments.getHeaders()
 
 
+    println(headers?.values?.toList())
     if (outputFileName != null && !isValidPath(outputFileName)) {
         exitProcess(0)
     }
@@ -34,13 +33,17 @@ suspend fun main(args: Array<String>) {
 
     try {
         println("Enter the video URL or ID (e.g., K8R6OOjS7):")
-        val videoUrl = scanner.nextLine().getVideoID()
+        val videoUrl = scanner.nextLine()
 
         val dispatcher = providerDispatcher.getProviderForUrl(videoUrl)
         val videoID = dispatcher.getVideoID(videoUrl)
 
+        val defaultHeader = if (videoUrl.isValidUrl()) {
+            mapOf("Referer" to videoUrl?.extractReferer())
+        } else { emptyMap() }
+
         val url = "https://abysscdn.com/?v=$videoID"
-        val videoMetadata = scraperService.getVideoMetaData(url, headers)
+        val videoMetadata = scraperService.getVideoMetaData(url, headers ?: defaultHeader)
 
         val videoSources = videoMetadata?.sources
             ?.sortedBy { it?.label?.filter { char -> char.isDigit() }?.toInt() }

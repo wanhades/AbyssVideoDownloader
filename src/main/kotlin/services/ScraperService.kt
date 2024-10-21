@@ -45,7 +45,7 @@ class ScraperService(
     }
 
 
-    fun getVideoMetaData(url: String, headers: Map<String, String>?): Video? {
+    fun getVideoMetaData(url: String, headers: Map<String, String?>?): Video? {
         val document = Unirest.get(url)
             .headers(headers)
             .asString().body

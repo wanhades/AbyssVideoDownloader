@@ -2,7 +2,7 @@ package com.abmo
 
 class CliArguments(private val args: Array<String>) {
 
-    fun getHeaders(): Map<String, String> {
+    fun getHeaders(): Map<String, String>? {
         val headers = mutableMapOf<String, String>()
         var i = 0
 
