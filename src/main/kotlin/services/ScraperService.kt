@@ -1,4 +1,4 @@
-package com.abmo
+package com.abmo.services
 
 import com.abmo.model.Config
 import com.abmo.util.CryptoHelper
@@ -19,13 +19,12 @@ class ScraperService(
     private val cryptoHelper: CryptoHelper
 ) {
 
-    suspend fun downloadVideo(config: Config) {
+    suspend fun downloadVideo(config: Config, videoMetadata: Video?) {
         var totalBytesDownloaded = 0L
         val startTime = System.currentTimeMillis()
-        val video = getVideoMetaData(config.url, config.header)
-        val simpleVideo = video?.toSimpleVideo(config.resolution)
+        val simpleVideo = videoMetadata?.toSimpleVideo(config.resolution)
         val segmentBodies = generateSegmentsBody(simpleVideo)
-        val segmentUrl = getSegmentUrl(video)
+        val segmentUrl = getSegmentUrl(videoMetadata)
         val decryptionKey = cryptoHelper.getKey(simpleVideo?.size)
 
         for (body in segmentBodies) {
