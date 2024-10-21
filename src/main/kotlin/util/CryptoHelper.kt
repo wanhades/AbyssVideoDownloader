@@ -84,7 +84,7 @@ class CryptoHelper(
     }
 
     fun getKey(value: Any?): String {
-        return javaScriptRunner.runJavaScriptCode("encryptor.js", "encryptKey", value)
+        return javaScriptRunner.runJavaScriptCode("keyGenerator.js", "generateKey", value)
     }
 
 }

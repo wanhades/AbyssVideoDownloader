@@ -9,7 +9,7 @@ if (typeof Uint8Array === 'undefined') {
     }
 }
 
-function encryptKey(videoID) {
+function generateKey(videoID) {
     if (null == videoID)
         throw new Error('Illegal argument ' + videoID);
     const wordsBytes = wordsToBytes(encoder(videoID));
