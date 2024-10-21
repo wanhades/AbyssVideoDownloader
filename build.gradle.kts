@@ -23,6 +23,7 @@ dependencies {
     implementation("com.mashape.unirest:unirest-java:1.4.9")
     implementation("org.mozilla:rhino:1.7.15")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jsoup:jsoup:1.18.1")
 }
 
 tasks.test {
@@ -36,9 +37,6 @@ kotlin {
 
 tasks {
     shadowJar {
-        dependencies {
-            exclude(dependency("com.ibm.icu:icu4j:72.1"))
-        }
         archiveFileName = "abyss-dl.jar"
     }
     jar {
