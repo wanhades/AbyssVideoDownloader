@@ -22,7 +22,7 @@ class ScraperService(
     suspend fun downloadVideo(config: Config) {
         var totalBytesDownloaded = 0L
         val startTime = System.currentTimeMillis()
-        val video = getVideoMetaData(config.url)
+        val video = getVideoMetaData(config.url, config.header)
         val simpleVideo = video?.toSimpleVideo(config.resolution)
         val segmentBodies = generateSegmentsBody(simpleVideo)
         val segmentUrl = getSegmentUrl(video)
@@ -46,8 +46,10 @@ class ScraperService(
     }
 
 
-    fun getVideoMetaData(url: String): Video? {
-        val document = Unirest.get(url).asString().body
+    fun getVideoMetaData(url: String, headers: Map<String, String>?): Video? {
+        val document = Unirest.get(url)
+            .headers(headers)
+            .asString().body
         val encryptedVideoData = extractEncryptedVideoMetaData(document)
         return cryptoHelper.decodeEncryptedString(encryptedVideoData)
     }

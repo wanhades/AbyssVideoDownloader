@@ -28,11 +28,13 @@ To download a video using AbyssVideoDownloader:
 1. Run the following command:
 
    ```bash
-   java -jar abyss-dl.jar [-o <output_file_path>]
+   java -jar mycli.jar [-H <header>] [--header <header>] [-o <output_file_path>]
    ```
 
-    - The `-o <output_file_path>` flag is optional. If not specified, the file will be saved in the Downloads directory with a default name.
-    - The `output_file_path` can either be the file name or the full path (including the file name) where you want the video to be saved.
+   - The `-H <header>` or `--header <header>` flag allows you to add HTTP headers in the format `Header-Name: Header-Value`.
+   - You can specify multiple headers by repeating the `-H` or `--header` flag.
+   - The `-o <output_file_path>` flag is optional. If not specified, the file will be saved in the Downloads directory with a default name.
+   - The `output_file_path` can either be the file name or the full path (including the file name) where you want the video to be saved.
 
 2. After running the command, the application will prompt you to input the video URL or the ID from Abyss.
 
@@ -50,7 +52,13 @@ To download a video using AbyssVideoDownloader:
    java -jar abyss-dl.jar
    ```
 
-3. After running the command, you will be prompted for the video URL:
+3. **Make an HTTP request with custom headers to download a video:**
+
+   ```bash
+   java -jar mycli.jar -H "Ref: Bearer TOKEN" --header "Referer: https://example.com" -o my_video.mp4
+   ```
+
+4. After running the command, you will be prompted for the video URL:
 
    ```
    enter the video URL or ID: https://abysscdn.com/?v=K8R6OOjS7

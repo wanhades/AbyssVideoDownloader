@@ -14,13 +14,12 @@ suspend fun main(args: Array<String>) {
     val javaScriptRunner = JavaScriptRunner()
     val cryptoHelper = CryptoHelper(javaScriptRunner)
     val scraperService = ScraperService(cryptoHelper)
+    val cliArguments = CliArguments(args)
 
 
-    val outputFileName = if (args.isNotEmpty() && args[0] == "-o") {
-        args.getOrNull(1)
-    } else {
-        null
-    }
+    val outputFileName = cliArguments.getOutputFileName(args)
+    val headers = cliArguments.getHeaders()
+
 
     if (outputFileName != null && !isValidPath(outputFileName)) {
         exitProcess(0)
@@ -34,7 +33,7 @@ suspend fun main(args: Array<String>) {
         val videoID = scanner.nextLine().getVideoID()
 
         val url = "https://abysscdn.com/?v=$videoID"
-        val videoSources = scraperService.getVideoMetaData(url)?.sources
+        val videoSources = scraperService.getVideoMetaData(url, headers)?.sources
             ?.sortedBy { it?.label?.filter { char -> char.isDigit() }?.toInt() }
 
         if (videoSources == null) {
@@ -56,9 +55,9 @@ suspend fun main(args: Array<String>) {
 
             val config = if (outputFileName == null) {
                 println("\nOutput file not specified. The video will be saved in the 'Downloads' folder as '${url.getVideoID()}_$resolution.mp4'.")
-                Config(url, resolution)
+                Config(url, resolution, header = headers)
             } else {
-                Config(url, resolution, File(outputFileName))
+                Config(url, resolution, File(outputFileName), header = headers)
             }
             println("\nvideo with id $videoID and resolution $resolution being processed....")
             scraperService.downloadVideo(config)

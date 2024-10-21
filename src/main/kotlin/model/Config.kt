@@ -7,5 +7,6 @@ import java.io.File
 data class Config(
     val url: String,
     val resolution: String,
-    var outputFile: File? = File(systemDownloadFolder(), "${url.getVideoID()}_$resolution.mp4")
+    var outputFile: File? = File(systemDownloadFolder(), "${url.getVideoID()}_$resolution.mp4"),
+    val header: Map<String, String>? = null
 )
