@@ -27,10 +27,10 @@ fun String.extractReferer(): String? {
 
 fun String.isValidUrl(): Boolean {
     return try {
-        URI(this).toURL() // Try to construct a URL object
-        true      // If successful, it's a valid URL
+        URI(this).toURL()
+        true
     } catch (e: Exception) {
-        false     // If an exception is thrown, it's not a valid URL
+        false
     }
 }
 
