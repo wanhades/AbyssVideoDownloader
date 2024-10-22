@@ -14,7 +14,7 @@ class ProviderDispatcher(
             "sieutamphim.com" -> SieutamphimProvider()
             "phimbet.biz" -> PhimbetProvider()
             "fimmoi.top" -> FimmoiProvider()
-            "motchill.taxi", "subnhanh.win" -> MotchillProvider()
+            "motchill.taxi", "motchill.to", "subnhanh.win" -> MotchillProvider()
             "animet3.biz" -> Animet3Provider()
             "tvhayw.org" -> TvhaywProvider()
 
