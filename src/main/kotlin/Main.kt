@@ -23,7 +23,6 @@ suspend fun main(args: Array<String>) {
     val headers = cliArguments.getHeaders()
 
 
-    println(headers?.values?.toList())
     if (outputFileName != null && !isValidPath(outputFileName)) {
         exitProcess(0)
     }

@@ -26,7 +26,7 @@ class CliArguments(private val args: Array<String>) {
             i += 1
         }
 
-        return headers
+        return headers.ifEmpty { null }
     }
 
     fun getOutputFileName(args: Array<String>): String? {
