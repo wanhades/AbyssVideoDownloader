@@ -4,7 +4,7 @@ import com.abmo.model.Config
 import com.abmo.services.ProviderDispatcher
 import com.abmo.services.ScraperService
 import com.abmo.util.CryptoHelper
-import com.abmo.util.JavaScriptRunner
+import com.abmo.util.JavaScriptExecutor
 import util.*
 import java.io.File
 import kotlin.system.exitProcess
@@ -12,11 +12,11 @@ import kotlin.system.exitProcess
 
 suspend fun main(args: Array<String>) {
 
-    val javaScriptRunner = JavaScriptRunner()
-    val cryptoHelper = CryptoHelper(javaScriptRunner)
+    val javaScriptExecutor = JavaScriptExecutor()
+    val cryptoHelper = CryptoHelper(javaScriptExecutor)
     val scraperService = ScraperService(cryptoHelper)
     val cliArguments = CliArguments(args)
-    val providerDispatcher = ProviderDispatcher(javaScriptRunner)
+    val providerDispatcher = ProviderDispatcher(javaScriptExecutor)
 
 
     val outputFileName = cliArguments.getOutputFileName(args)
@@ -48,7 +48,7 @@ suspend fun main(args: Array<String>) {
             ?.sortedBy { it?.label?.filter { char -> char.isDigit() }?.toInt() }
 
         if (videoSources == null) {
-            println("video with ID $videoID not found")
+            println("Video not found")
             exitProcess(0)
         }
 
@@ -65,7 +65,7 @@ suspend fun main(args: Array<String>) {
         if (resolution != null) {
 
             val config = if (outputFileName == null) {
-                println("\nOutput file not specified. The video will be saved in the 'Downloads' folder as '${url.getVideoID()}_$resolution.mp4'.")
+                println("\nOutput file not specified. The video will be saved in the 'Downloads' folder as '${url.getVParameter()}_$resolution.mp4'.")
                 Config(url, resolution, header = headers)
             } else {
                 Config(url, resolution, File(outputFileName), header = headers)

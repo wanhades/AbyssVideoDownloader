@@ -8,7 +8,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 class CryptoHelper(
-    private val javaScriptRunner: JavaScriptRunner
+    private val javaScriptExecutor: JavaScriptExecutor
 ) {
 
     fun decodeEncryptedString(encryptedInput: String?): Video? {
@@ -84,7 +84,7 @@ class CryptoHelper(
     }
 
     fun getKey(value: Any?): String {
-        return javaScriptRunner.runJavaScriptCode("keyGenerator.js", "generateKey", value)
+        return javaScriptExecutor.runJavaScriptCode("keyGenerator.js", "generateKey", value)
     }
 
 }
