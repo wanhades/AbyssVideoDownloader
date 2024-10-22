@@ -10,7 +10,6 @@ class JavaScriptExecutor {
     private val context = Context.enter()
 
     fun runJavaScriptCode(fileName: String, identifier: String, vararg arguments: Any?): String {
-        return try {
             val scope: Scriptable = context.initStandardObjects()
             val jsFileStream: InputStream = javaClass.getResourceAsStream("/$fileName")
                 ?: throw IllegalArgumentException("File $fileName not found in resources")
@@ -25,10 +24,7 @@ class JavaScriptExecutor {
                 return result as? String ?: ""
             }
 
-            ""
-        } finally {
-            Context.exit()
+            return ""
         }
-    }
 
 }
