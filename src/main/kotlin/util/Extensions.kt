@@ -1,19 +1,24 @@
 package util
 
 import com.google.gson.Gson
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.io.File
 import java.io.FileNotFoundException
 import java.net.URI
 
 fun Any.toJson(): String = Gson().toJson(this)
 
+
 fun systemDownloadFolder(): File {
     val home = System.getProperty("user.home")
     return File(home, "Downloads")
 }
 
-fun String.getVideoID(): String {
-    return this.substringAfter("v=")
+fun String.getVParameter(): String? {
+    val regex = Regex("""[vV]=([^&]+)""")
+    val matchResult = regex.find(this)
+    return matchResult?.groupValues?.get(1)
 }
 
 fun String.extractReferer(): String? {
@@ -25,12 +30,46 @@ fun String.extractReferer(): String? {
     }
 }
 
+fun String.getBaseUrl(): String {
+    val url = URI(this).toURL()
+    return "${url.protocol}://${url.host}"
+}
+
+fun String.getHost(): String {
+    return try {
+        URI(this).toURL().host
+    } catch (e: IllegalArgumentException) {
+        this
+    }
+}
+
 fun String.isValidUrl(): Boolean {
     return try {
         URI(this).toURL()
         true
     } catch (e: Exception) {
         false
+    }
+}
+
+fun String.fetchDocument(): Document = Jsoup.connect(this).get()
+
+fun String.toJsoupDocument(): Document = Jsoup.parse(this)
+
+fun String.findValueByKey(key: String): String? {
+    // Regex pattern to match "key": followed by any value (string, number, HTML, etc.)
+    // It handles cases where the value might be a quoted string or not quoted (e.g., number, null, boolean)
+    val regex = """"$key"\s*:\s*("(?:[^"\\]*(?:\\.[^"\\]*)*)"|[^\s,}]+)""".toRegex()
+
+    // find matches in the JSON string
+    val matchResult = regex.find(this)
+
+    return matchResult?.groupValues?.get(1)?.let {
+        if (it.startsWith("\"") && it.endsWith("\"")) {
+            it.substring(1, it.length - 1)
+        } else {
+            it
+        }
     }
 }
 

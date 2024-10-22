@@ -1,16 +1,16 @@
 package com.abmo.providers
 
-import com.abmo.util.JavaScriptRunner
+import com.abmo.util.JavaScriptExecutor
 import org.jsoup.Jsoup
-
+import util.fetchDocument
 
 
 class TvphimProvider(
-    private val javaScriptRunner: JavaScriptRunner
+    private val javaScriptExecutor: JavaScriptExecutor
 ): Provider {
 
     override fun getVideoID(url: String): String? {
-        val hProUrl = Jsoup.connect(url).get()
+        val hProUrl = url.fetchDocument()
             .select("a[title=\"Server H.PRO\"]").attr("href")
         if (hProUrl.isNullOrBlank()) return null
 
@@ -18,7 +18,7 @@ class TvphimProvider(
         val jsCode = document.select("div[class=absolute inset-0]")
             .select("script").html()
 
-        val videoID = javaScriptRunner.runJavaScriptCode(
+        val videoID = javaScriptExecutor.runJavaScriptCode(
             "tvphim.js",
             "extractVideoID",
             jsCode)
