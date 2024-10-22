@@ -1,13 +1,6 @@
 # AbyssVideoDownloader
 
-**AbyssVideoDownloader** is a command-line Kotlin application that allows users to download Abyss.to videos. It supports downloading videos in different resolutions and gives users control over the file name and output path.
-
-## Features
-
-- **Download Videos:** Easily download Abyss.to videos.
-- **Resolution Support:** Choose the resolution directly from available options.
-- **Custom Output Path:** Specify the output file name and path using the `-o` flag.
-- **Interactive Input:** The application will prompt you for the video URL or ID.
+**AbyssVideoDownloader** is a command-line Kotlin application that allows users to download Abyss.to videos. It supports downloading videos in different resolutions.
 
 ## Prerequisites
 
@@ -28,7 +21,7 @@ To download a video using AbyssVideoDownloader:
 1. Run the following command:
 
    ```bash
-   java -jar mycli.jar [-H <header>] [--header <header>] [-o <output_file_path>]
+   java -jar abyss-dl.jar [-H <header>] [--header <header>] [-o <output_file_path>]
    ```
 
    - The `-H <header>` or `--header <header>` flag allows you to add HTTP headers in the format `Header-Name: Header-Value`.
@@ -55,7 +48,7 @@ To download a video using AbyssVideoDownloader:
 3. **Make an HTTP request with custom headers to download a video:**
 
    ```bash
-   java -jar mycli.jar -H "Ref: Bearer TOKEN" --header "Referer: https://example.com" -o my_video.mp4
+   java -jar abyss-dl.jar -H "Ref: Bearer TOKEN" --header "Referer: https://example.com" -o my_video.mp4
    ```
 
 4. After running the command, you will be prompted for the video URL:
