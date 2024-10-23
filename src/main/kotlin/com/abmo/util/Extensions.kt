@@ -1,4 +1,4 @@
-package util
+package com.abmo.util
 
 import com.google.gson.Gson
 import org.jsoup.Jsoup

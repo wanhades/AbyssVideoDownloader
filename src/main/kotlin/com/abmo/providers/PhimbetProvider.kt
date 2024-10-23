@@ -1,7 +1,7 @@
 package com.abmo.providers
 
-import util.findValueByKey
-import util.fetchDocument
+import com.abmo.util.fetchDocument
+import com.abmo.util.findValueByKey
 
 
 class PhimbetProvider: Provider {

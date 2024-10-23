@@ -1,7 +1,7 @@
 package com.abmo.providers
 
-import util.getHost
-import util.getVParameter
+import com.abmo.util.getHost
+import com.abmo.util.getVParameter
 
 
 class AbyssToProvider: Provider {

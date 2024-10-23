@@ -1,7 +1,7 @@
 package com.abmo.model
 
-import util.getVParameter
-import util.systemDownloadFolder
+import com.abmo.util.getVParameter
+import com.abmo.util.systemDownloadFolder
 import java.io.File
 
 data class Config(

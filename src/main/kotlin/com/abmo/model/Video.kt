@@ -1,4 +1,4 @@
-package model
+package com.abmo.model
 
 data class Video(
     val ads: Ads? = null,

@@ -2,7 +2,7 @@ package com.abmo.services
 
 import com.abmo.providers.*
 import com.abmo.util.JavaScriptExecutor
-import util.getHost
+import com.abmo.util.getHost
 
 class ProviderDispatcher(
     private val javaScriptExecutor: JavaScriptExecutor

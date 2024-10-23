@@ -2,10 +2,10 @@ package com.abmo
 
 import com.abmo.model.Config
 import com.abmo.services.ProviderDispatcher
-import com.abmo.services.ScraperService
+import com.abmo.services.VideoDownloader
 import com.abmo.util.CryptoHelper
 import com.abmo.util.JavaScriptExecutor
-import util.*
+import com.abmo.util.*
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -14,7 +14,7 @@ suspend fun main(args: Array<String>) {
 
     val javaScriptExecutor = JavaScriptExecutor()
     val cryptoHelper = CryptoHelper(javaScriptExecutor)
-    val scraperService = ScraperService(cryptoHelper)
+    val videoDownloader = VideoDownloader(cryptoHelper)
     val cliArguments = CliArguments(args)
     val providerDispatcher = ProviderDispatcher(javaScriptExecutor)
 
@@ -42,7 +42,7 @@ suspend fun main(args: Array<String>) {
         } else { emptyMap() }
 
         val url = "https://abysscdn.com/?v=$videoID"
-        val videoMetadata = scraperService.getVideoMetaData(url, headers ?: defaultHeader)
+        val videoMetadata = videoDownloader.getVideoMetaData(url, headers ?: defaultHeader)
 
         val videoSources = videoMetadata?.sources
             ?.sortedBy { it?.label?.filter { char -> char.isDigit() }?.toInt() }
@@ -71,7 +71,7 @@ suspend fun main(args: Array<String>) {
                 Config(url, resolution, File(outputFileName), header = headers)
             }
             println("\nvideo with id $videoID and resolution $resolution being processed....")
-            scraperService.downloadVideo(config, videoMetadata)
+            videoDownloader.downloadVideo(config, videoMetadata)
         }
     } catch (e: NoSuchElementException) {
         println("\nCtrl + C detected. Exiting...")

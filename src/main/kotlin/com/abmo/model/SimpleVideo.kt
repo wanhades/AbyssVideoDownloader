@@ -1,4 +1,4 @@
-package model
+package com.abmo.model
 
 data class SimpleVideo(
     val slug: String? = null,

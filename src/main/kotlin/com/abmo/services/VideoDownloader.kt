@@ -1,21 +1,17 @@
 package com.abmo.services
 
-import com.abmo.model.Config
+import com.abmo.model.*
 import com.abmo.util.CryptoHelper
 import com.abmo.util.displayProgressBar
+import com.abmo.util.toJson
 import com.mashape.unirest.http.Unirest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import model.Range
-import model.SimpleVideo
-import model.Video
-import model.toSimpleVideo
-import util.toJson
 
 
-class ScraperService(
+class VideoDownloader(
     private val cryptoHelper: CryptoHelper
 ) {
 

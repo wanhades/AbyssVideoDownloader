@@ -1,7 +1,7 @@
 package com.abmo.util
 
 import com.google.gson.Gson
-import model.Video
+import com.abmo.model.Video
 import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec

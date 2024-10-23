@@ -1,6 +1,6 @@
 package com.abmo.providers
 
-import util.fetchDocument
+import com.abmo.util.fetchDocument
 import java.nio.charset.Charset
 
 

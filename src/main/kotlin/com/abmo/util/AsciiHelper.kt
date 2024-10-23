@@ -2,7 +2,6 @@ package com.abmo.util
 
 
 fun displayProgressBar(bytesDownloaded: Long, totalSize: Long, startTime: Long) {
-
     val progress = (bytesDownloaded.toDouble() / totalSize.toDouble()) * 100
     val barLength = 50
     val filledLength = (progress / 100 * barLength).toInt()

@@ -1,9 +1,9 @@
 package com.abmo.providers
 
+import com.abmo.util.fetchDocument
+import com.abmo.util.getVParameter
+import com.abmo.util.toJsoupDocument
 import com.mashape.unirest.http.Unirest
-import util.fetchDocument
-import util.getVParameter
-import util.toJsoupDocument
 
 
 class MotchillProvider: Provider {
