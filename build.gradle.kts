@@ -1,3 +1,5 @@
+import proguard.gradle.ProGuardTask
+
 plugins {
     kotlin("jvm") version "2.0.0"
     id("com.gradleup.shadow") version "8.3.3"
@@ -15,6 +17,11 @@ application {
 
 repositories {
     mavenCentral()
+}
+buildscript {
+    dependencies {
+        classpath("com.guardsquare:proguard-gradle:7.6.0")
+    }
 }
 
 dependencies {
@@ -34,12 +41,32 @@ kotlin {
 }
 
 
-
 tasks {
     shadowJar {
+        minimize {
+            exclude(dependency("org.mozilla:.*:.*"))
+            exclude(dependency("org.apache.httpcomponents:httpcore:.*"))
+            exclude(dependency("org.apache.httpcomponents:httpclient:.*"))
+        }
         archiveFileName = "abyss-dl.jar"
     }
-    jar {
-        from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
-    }
+}
+
+tasks.register<ProGuardTask>("proguard") {
+    val buildDir = layout.buildDirectory.get()
+    dependsOn("shadowJar")
+
+    injars("$buildDir/libs/abyss-dl.jar")
+    outjars("$buildDir/libs/abyss-dl-obfuscated.jar")
+
+    configuration("proguard-rules.pro")
+
+
+    libraryjars("${System.getProperty("java.home")}/lib/rt-fs.jar")
+    libraryjars("${System.getProperty("java.home")}/jmods")
+    printmapping("${buildDir}/libs/mapping.txt")
+}
+
+tasks.build {
+    dependsOn(tasks.named("proguard"))
 }
