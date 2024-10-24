@@ -10,52 +10,124 @@ Before using AbyssVideoDownloader, ensure you have:
 
 ## Installation
 
-1. Download the latest **abyss-dl.jar** file from the [Releases](https://github.com/abdlhay/AbyssVideoDownloader/releases) section of this repository.
+You have two options for obtaining the `abyss-dl.jar` file:
 
-2. Save the jar file to a directory of your choice.
+1. **Download the Latest JAR File**:
+   - You can download the latest `abyss-dl.jar` file from the [Releases](https://github.com/abdlhay/AbyssVideoDownloader/releases) section of this repository.
+
+2. **Build the JAR File Manually**:
+   - If you prefer to build the project yourself or want the latest updates, follow the instructions in the [**Building the Project**](https://github.com/abdlhay/AbyssVideoDownloader#building-the-project) section below.
+
 
 ## Usage
 
-To download a video using AbyssVideoDownloader:
+### Downloading a Video with AbyssVideoDownloader
 
-1. Run the following command:
+To download a video, follow these steps:
+
+1. **Run the Command**:
+   Open your terminal and enter the following command:
 
    ```bash
-   java -jar abyss-dl.jar [-H <header>] [--header <header>] [-o <output_file_path>]
+   java -jar abyss-dl.jar [-H <header>] [--header <header>] [-o <output_file_path>] [-c <number_of_connections>]
    ```
 
-   - The `-H <header>` or `--header <header>` flag allows you to add HTTP headers in the format `Header-Name: Header-Value`.
-   - You can specify multiple headers by repeating the `-H` or `--header` flag.
-   - The `-o <output_file_path>` flag is optional. If not specified, the file will be saved in the Downloads directory with a default name.
-   - The `output_file_path` can either be the file name or the full path (including the file name) where you want the video to be saved.
+   - **Add HTTP Headers** (Optional):
+      - Use `-H <header>` or `--header <header>` to include additional information with your request.
+      - Example: `-H "Authorization: Bearer TOKEN"`
+      - You can add multiple headers by repeating the `-H` or `--header` option.
 
-2. After running the command, the application will prompt you to input the video URL or the ID from Abyss.
+   - **Specify Output File** (Optional):
+      - Use `-o <output_file_path>` to choose where to save the downloaded video.
+      - Example: `-o /path/to/my_video.mp4`
+      - If you don’t specify a path, the video will be saved in the current directory with a default name.
+
+   - **Set Number of Connections** (Optional):
+      - Use `-c <number_of_connections>` or `--connections <number_of_connections>` to set how many connections to use for downloading. This can help speed up the download.
+      - The number must be between 1 and 10 by default it is set to 6.
+      - Example: `-c 7`
 
 ### Examples
 
-1. **Download a video and save it with a specified file name in a custom directory:**
-
+1. **Download a video and save it with a specific name in a chosen folder**:
    ```bash
    java -jar abyss-dl.jar -o /path/to/directory/my_video.mp4
    ```
 
-2. **Download a video and save it with the default file name in the current directory:**
-
+2. **Download a video and save it with the default name in the current directory**:
    ```bash
    java -jar abyss-dl.jar
    ```
 
-3. **Make an HTTP request with custom headers to download a video:**
-
+3. **Download a video using custom headers**:
    ```bash
-   java -jar abyss-dl.jar -H "Ref: Bearer TOKEN" --header "Referer: https://example.com" -o my_video.mp4
+   java -jar abyss-dl.jar -H "Authorization: Bearer TOKEN" --header "Referer: https://example.com" -o my_video.mp4
    ```
 
-4. After running the command, you will be prompted for the video URL:
+4. **Download a video with multiple connections**:
+   ```bash
+   java -jar abyss-dl.jar -c 7 -o my_video.mp4
+   ```
+
+5. **Download a video using custom headers and multiple connections**:
+   ```bash
+   java -jar abyss-dl.jar -H "Authorization: Bearer TOKEN" --header "Referer: https://example.com" -c 3 -o /path/to/my_video.mp4
+   ```
+
+6. After running the command, you will be prompted for the video URL:
 
    ```
    enter the video URL or ID: https://abysscdn.com/?v=K8R6OOjS7
    ```
+
+## Building the Project
+
+To build the AbyssVideoDownloader, you can use the Gradle Wrapper
+
+### Steps to Build the Project
+
+1. **Clone the Repository**:
+   First, clone the project repository using Git. Open your terminal and run:
+
+   ```bash
+   git clone https://github.com/abdlhay/AbyssVideoDownloader.git
+   ```
+
+2. **Change into the Project Directory**:
+   Navigate into the cloned project directory:
+
+   ```bash
+   cd AbyssVideoDownloader
+   ```
+
+3. **Run the Build Command**:
+   Use the following command to build the project:
+
+   ```bash
+   ./gradlew build
+   ```
+
+   - On Windows, use the following command instead:
+
+   ```bash
+   gradlew.bat build
+   ```
+
+4. **Locate the JAR File**:
+   After the build process completes successfully, the JAR file `abyss-dl.jar` will be located in the `build/libs` directory.
+
+   - You can find the JAR file at the following path:
+     ```
+     build/libs/abyss-dl.jar
+     ```
+
+5. **Run the Application**:
+   You can now run the application using the generated JAR file with the following command:
+
+   ```bash
+   java -jar build/libs/abyss-dl.jar
+   ```
+
 
 
 License
