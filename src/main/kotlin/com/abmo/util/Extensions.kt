@@ -10,11 +10,6 @@ import java.net.URI
 fun Any.toJson(): String = Gson().toJson(this)
 
 
-fun systemDownloadFolder(): File {
-    val home = System.getProperty("user.home")
-    return File(home, "Downloads")
-}
-
 fun String.getVParameter(): String? {
     val regex = Regex("""[vV]=([^&]+)""")
     val matchResult = regex.find(this)
@@ -84,6 +79,20 @@ fun formatBytes(bytes: Long?): String {
         bytes >= megabyte -> String.format("%.2f MB", bytes / megabyte)
         bytes >= kilobyte -> String.format("%.2f KB", bytes / kilobyte)
         else -> "$bytes Bytes"
+    }
+}
+
+fun Long.toReadableTime(): String {
+    val totalSeconds = this / 1000
+    val seconds = totalSeconds % 60
+    val totalMinutes = totalSeconds / 60
+    val minutes = totalMinutes % 60
+    val hours = totalMinutes / 60
+
+    return when {
+        hours > 0 -> "$hours hours and $minutes minutes"
+        minutes > 0 -> "$minutes minutes and $seconds seconds"
+        else -> "$seconds seconds"
     }
 }
 
