@@ -128,6 +128,21 @@ To build the AbyssVideoDownloader, you can use the Gradle Wrapper
    java -jar build/libs/abyss-dl.jar
    ```
 
+## TODOs
+
+Here are the planned tasks and features for future updates:
+
+- [ ] Clean Code.
+- [x] Add support for multiple parallel downloads.
+- [ ] Integrate dependency injection maybe
+- [ ] Improve error handling and provide more descriptive messages for common issues.
+- [ ] Implement retry and resume logic for failed downloads.
+- [ ] Enhance logging with different verbosity levels (e.g., debug, info, error).
+- [ ] Add support for proxy configuration.
+- [ ] Add a graphical user interface (GUI) for easier interaction or maybe an android app
+
+Feel free to contribute by picking any task or suggesting new ones!
+
 
 
 License
