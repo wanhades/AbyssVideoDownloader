@@ -21,7 +21,7 @@ suspend fun main(args: Array<String>) {
 
     val outputFileName = cliArguments.getOutputFileName(args)
     val headers = cliArguments.getHeaders()
-
+    val numberOfConnections = cliArguments.getParallelConnections()
 
     if (outputFileName != null && !isValidPath(outputFileName)) {
         exitProcess(0)
@@ -64,14 +64,14 @@ suspend fun main(args: Array<String>) {
 
         if (resolution != null) {
 
-            val config = if (outputFileName == null) {
+            val outputFile = outputFileName?.let { File(it) } ?: run {
                 println("\nOutput file not specified. The video will be saved in the 'Downloads' folder as '${url.getVParameter()}_$resolution.mp4'.")
-                Config(url, resolution, header = headers)
-            } else {
-                Config(url, resolution, File(outputFileName), header = headers)
+                File(".", "${url.getVParameter()}_$resolution.mp4") // default directory and name for saving video
             }
-            println("\nvideo with id $videoID and resolution $resolution being processed....")
-            videoDownloader.downloadVideo(config, videoMetadata)
+
+            val config = Config(url, resolution, outputFile, headers, numberOfConnections)
+            println("\nvideo with id $videoID and resolution $resolution being processed....\n")
+            videoDownloader.downloadSegmentsInParallel(config, videoMetadata)
         }
     } catch (e: NoSuchElementException) {
         println("\nCtrl + C detected. Exiting...")

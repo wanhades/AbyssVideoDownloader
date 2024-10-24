@@ -30,12 +30,26 @@ class CliArguments(private val args: Array<String>) {
     }
 
     fun getOutputFileName(args: Array<String>): String? {
-        for (i in args.indices) {
-            if (args[i] == "-o" && i + 1 < args.size) {
-                return args[i + 1]
-            }
+        val index = args.indexOf("-o")
+        if (index != -1 && index + 1 < args.size) {
+            val filePath = args[index + 1]
+            return  filePath
         }
         return null
+    }
+
+    fun getParallelConnections(): Int {
+        val maxConnections = 10
+        val minConnections = 1
+        val connectionArgIndex = args.indexOfFirst { it == "--connections" || it == "-c"}
+        if (connectionArgIndex != -1 && connectionArgIndex + 1 < args.size) {
+            val connectionValue = args[connectionArgIndex + 1].toIntOrNull()
+            if (connectionValue != null) {
+                return connectionValue.coerceIn(minConnections, maxConnections)
+            }
+        }
+
+        return 6
     }
 
 }
