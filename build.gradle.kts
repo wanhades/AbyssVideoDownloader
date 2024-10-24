@@ -48,7 +48,7 @@ tasks {
             exclude(dependency("org.apache.httpcomponents:httpcore:.*"))
             exclude(dependency("org.apache.httpcomponents:httpclient:.*"))
         }
-        archiveFileName = "abyss-dl.jar"
+        archiveFileName = "abyss-dl-shadowJar.jar"
     }
 }
 
@@ -56,8 +56,8 @@ tasks.register<ProGuardTask>("proguard") {
     val buildDir = layout.buildDirectory.get()
     dependsOn("shadowJar")
 
-    injars("$buildDir/libs/abyss-dl.jar")
-    outjars("$buildDir/libs/abyss-dl-obfuscated.jar")
+    injars("$buildDir/libs/abyss-dl-shadowJar.jar")
+    outjars("$buildDir/libs/abyss-dl.jar")
 
     configuration("proguard-rules.pro")
 
