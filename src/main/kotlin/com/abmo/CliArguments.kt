@@ -1,5 +1,7 @@
 package com.abmo
 
+import com.abmo.Constant.DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
+
 class CliArguments(private val args: Array<String>) {
 
     fun getHeaders(): Map<String, String>? {
@@ -49,7 +51,7 @@ class CliArguments(private val args: Array<String>) {
             }
         }
 
-        return 6
+        return DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
     }
 
 }

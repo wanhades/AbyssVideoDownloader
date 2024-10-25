@@ -1,5 +1,6 @@
 package com.abmo.model
 
+import com.abmo.Constant.DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
 import java.io.File
 
 data class Config(
@@ -7,5 +8,5 @@ data class Config(
     val resolution: String,
     var outputFile: File?,
     val header: Map<String, String>? = null,
-    val connections: Int = 6
+    val connections: Int = DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
 )
