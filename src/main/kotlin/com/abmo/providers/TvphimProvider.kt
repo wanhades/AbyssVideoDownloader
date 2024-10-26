@@ -1,6 +1,6 @@
 package com.abmo.providers
 
-import com.abmo.util.JavaScriptExecutor
+import com.abmo.executor.JavaScriptExecutor
 import com.abmo.util.fetchDocument
 
 

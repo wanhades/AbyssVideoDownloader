@@ -1,7 +1,7 @@
 package com.abmo.services
 
 import com.abmo.providers.*
-import com.abmo.util.JavaScriptExecutor
+import com.abmo.executor.JavaScriptExecutor
 import com.abmo.util.getHost
 
 class ProviderDispatcher(

@@ -1,4 +1,4 @@
-package com.abmo.util
+package com.abmo.executor
 
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Scriptable
