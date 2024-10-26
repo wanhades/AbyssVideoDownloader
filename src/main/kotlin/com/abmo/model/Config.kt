@@ -1,6 +1,6 @@
 package com.abmo.model
 
-import com.abmo.Constant.DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
+import com.abmo.common.Constants.DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
 import java.io.File
 
 data class Config(

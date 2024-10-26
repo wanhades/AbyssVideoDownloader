@@ -1,6 +1,6 @@
 package com.abmo
 
-import com.abmo.Constant.DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
+import com.abmo.common.Constants.DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
 
 class CliArguments(private val args: Array<String>) {
 

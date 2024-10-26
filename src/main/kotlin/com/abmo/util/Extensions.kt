@@ -6,7 +6,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.File
 import java.io.FileNotFoundException
-import java.net.URI
 
 fun Any.toJson(): String = Gson().toJson(this)
 
