@@ -1,6 +1,9 @@
 name: Build AbyssVideoDownloader
 
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 concurrency:
@@ -10,22 +13,27 @@ concurrency:
 jobs:
   build:
     name: Build AbyssVideoDownloader
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     permissions:
       contents: write
 
+    env:
+      VERSION: "1.4"
+      BUILD_NUMBER: ${{ github.run_number }}
+      RELEASE_NAME: "abyss-dl-${{ env.VERSION }}-build${{ env.BUILD_NUMBER }}"
+
     steps:
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
-          java-version: '11'
+          java-version: '21'
           distribution: 'temurin'
 
       - name: Clone Repository
         run: |
           git clone https://github.com/abdlhay/AbyssVideoDownloader.git
           cd AbyssVideoDownloader
-          
+
       - name: Make Gradle Executable
         run: chmod +x AbyssVideoDownloader/gradlew
 
@@ -38,7 +46,8 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v2.0.6
         with:
-          tag_name: AbyssVideoDownloader-v${{ github.run_number }}
-          name: AbyssVideoDownloader-v${{ github.run_number }}
-          files: AbyssVideoDownloader/build/libs/abyss-dl.jar
+          tag_name: ${{ env.VERSION }}
+          name: ${{ env.RELEASE_NAME }}
+          files: |
+            AbyssVideoDownloader/build/libs/abyss-dl.jar
           draft: true
