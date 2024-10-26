@@ -1,7 +1,7 @@
 package com.abmo.providers
 
 import com.abmo.util.fetchDocument
-import com.abmo.util.getVParameter
+import com.abmo.util.getParameter
 import com.abmo.util.toJsoupDocument
 import com.mashape.unirest.http.Unirest
 
@@ -22,7 +22,7 @@ class Animet3Provider: Provider {
 
         val videoID = response.toJsoupDocument()
             .select("iframe")
-            .attr("src").getVParameter()
+            .attr("src").getParameter("v")
 
         return videoID
     }

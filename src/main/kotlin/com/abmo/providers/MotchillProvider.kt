@@ -1,7 +1,7 @@
 package com.abmo.providers
 
 import com.abmo.util.fetchDocument
-import com.abmo.util.getVParameter
+import com.abmo.util.getParameter
 import com.abmo.util.toJsoupDocument
 import com.mashape.unirest.http.Unirest
 
@@ -21,7 +21,7 @@ class MotchillProvider: Provider {
 
         val videoID = response.toJsoupDocument()
             .getElementById("playerIframe")
-            ?.attr("src")?.getVParameter()
+            ?.attr("src")?.getParameter("v")
 
 
         return videoID
