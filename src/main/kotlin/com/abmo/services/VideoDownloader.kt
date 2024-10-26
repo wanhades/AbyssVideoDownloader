@@ -1,7 +1,8 @@
 package com.abmo.services
 
+import com.abmo.common.Logger
 import com.abmo.model.*
-import com.abmo.util.CryptoHelper
+import com.abmo.crypto.CryptoHelper
 import com.abmo.util.displayProgressBar
 import com.abmo.util.toJson
 import com.abmo.util.toReadableTime
@@ -27,8 +28,10 @@ class VideoDownloader(
         val segmentUrl = getSegmentUrl(videoMetadata)
         val decryptionKey = cryptoHelper.getKey(simpleVideo?.size)
 
-        val tempFolder = File(config.outputFile?.parentFile, "temp_${simpleVideo?.slug}_${simpleVideo?.label}")
-        // no need to check if path exists before creating temp folder we already did that in Main.kt (why do I use WE I'M ALONE AT THIS)
+        val tempFolderName = "temp_${simpleVideo?.slug}_${simpleVideo?.label}"
+        val tempFolder = File(config.outputFile?.parentFile, tempFolderName)
+        // no need to check if path exists before creating temp folder we already did that in Main.kt
+        Logger.info("Creating temporary folder $tempFolderName")
         tempFolder.mkdir()
 
 
@@ -46,7 +49,7 @@ class VideoDownloader(
                 async {
                     semaphore.withPermit {
                         var isFirst = true
-                        requestSegment(segmentUrl, segmentBody.toJson()).collect { chunk ->
+                        requestSegment(segmentUrl, segmentBody.toJson(), i).collect { chunk ->
                             val array = if (isFirst) {
                                 isFirst = false
                                 cryptoHelper.decryptAESCTR(chunk, decryptionKey)
@@ -65,9 +68,10 @@ class VideoDownloader(
         }
         val endTime = System.currentTimeMillis()
         val duration = (endTime - startTime).toReadableTime()
-        println("\n\nDownload took: $duration")
-        println("\nAll segments have been downloaded successfully!")
-        println("merging segments into mp4 file...")
+        println("\n")
+        Logger.info("Download took: $duration")
+        Logger.success("All segments have been downloaded successfully!")
+        Logger.info("merging segments into mp4 file...")
         config.outputFile?.let { mergeSegmentsIntoMp4(tempFolder, it) }
 
     }
@@ -113,7 +117,7 @@ class VideoDownloader(
             output.appendBytes(it.readBytes())
         }
 
-        println("merge complete successfully")
+        Logger.success("Segments merged successfully.")
 
         if (segmentFolderPath.exists() && segmentFolderPath.isDirectory) {
             val files = segmentFolderPath.listFiles()
@@ -125,28 +129,46 @@ class VideoDownloader(
             }
 
             if (segmentFolderPath.delete()) {
-                println("Deleted temporary folder at: ${segmentFolderPath.absolutePath}")
+                Logger.info("Deleted temporary folder at: ${segmentFolderPath.absolutePath}")
             } else {
-                println("Failed to delete folder: ${segmentFolderPath.absolutePath}")
+                Logger.error("Failed to delete folder: ${segmentFolderPath.absolutePath}")
             }
         } else {
-            println("Folder does not exist or is not a directory: ${segmentFolderPath.absolutePath}")
+            Logger.error("Folder does not exist or is not a directory: ${segmentFolderPath.absolutePath}")
         }
     }
 
 
     fun getVideoMetaData(url: String, headers: Map<String, String?>?): Video? {
-        val document = Unirest.get(url)
+        Logger.debug("Starting HTTP GET request to $url")
+        val response = Unirest.get(url)
             .headers(headers)
-            .asString().body
-        val encryptedVideoData = extractEncryptedVideoMetaData(document)
+            .asString()
+
+        val encryptedData = response.body
+        val responseCode = response.status
+        Logger.debug("Received response with status $responseCode", responseCode !in 200..299)
+
+        val encryptedVideoData = extractEncryptedVideoMetaData(encryptedData)
+
         return cryptoHelper.decodeEncryptedString(encryptedVideoData)
     }
 
 
     private fun extractEncryptedVideoMetaData(html: String): String? {
+        Logger.debug("Starting extraction of encrypted video metadata from HTML content.")
         val regex = """JSON\.parse\(atob\("([^"]+)"\)\)""".toRegex()
         val matchResult = regex.find(html)
+
+        val result = matchResult?.groups?.get(1)?.value
+
+        if (matchResult != null) {
+            Logger.debug("Encrypted video metadata extracted successfully.")
+            Logger.debug("Encrypted metadata (truncated): ${result?.take(100)}...")
+        } else {
+            Logger.debug("No encrypted video metadata found in the provided HTML.", true)
+        }
+
         return matchResult?.groups?.get(1)?.value
     }
 
@@ -176,6 +198,8 @@ class VideoDownloader(
 
 
     private fun generateSegmentsBody(simpleVideo: SimpleVideo?): List<String> {
+
+        Logger.debug("Generating segment POST request body and encrypting the data.")
         val fragmentList = mutableListOf<String>()
         val encryptionKey = cryptoHelper.getKey(simpleVideo?.slug)
         if (simpleVideo?.size != null) {
@@ -187,22 +211,31 @@ class VideoDownloader(
                 val encryptedBody = cryptoHelper.encryptAESCTR(body.toJson(), encryptionKey)
                 fragmentList.add(encryptedBody)
             }
+            Logger.debug("${fragmentList.size} request body generated")
             return fragmentList
         }
         return emptyList()
     }
 
 
-    private suspend fun requestSegment(url: String, body: String): Flow<ByteArray> = flow {
+    private suspend fun requestSegment(url: String, body: String, index: Int? = null): Flow<ByteArray> = flow {
+        println("\n")
+        Logger.debug("[$index] Starting HTTP POST request to $url with body length: ${body.length}. Body (truncated): \"...${body.takeLast(30)}")
         val response = Unirest.post(url)
             .header("Content-Type", "application/json")
             .body("""{"hash":$body}""")
-            .asBinary().rawBody
+            .asBinary()
+
+        val rawBody = response.rawBody
+        val responseCode = response.status
+
+        println("\n")
+        Logger.debug("[$index] Received response with status $responseCode\n", responseCode !in 200..299)
 
         val buffer = ByteArray(65536)
         var bytesRead: Int
 
-        response.use { stream ->
+        rawBody.use { stream ->
             while (stream.read(buffer).also { bytesRead = it } != -1) {
                 emit(buffer.copyOf(bytesRead))
             }

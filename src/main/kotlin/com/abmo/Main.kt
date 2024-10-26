@@ -1,10 +1,12 @@
 package com.abmo
 
+import com.abmo.common.Constants
+import com.abmo.common.Logger
 import com.abmo.model.Config
 import com.abmo.services.ProviderDispatcher
 import com.abmo.services.VideoDownloader
-import com.abmo.util.CryptoHelper
-import com.abmo.util.JavaScriptExecutor
+import com.abmo.crypto.CryptoHelper
+import com.abmo.executor.JavaScriptExecutor
 import com.abmo.util.*
 import java.io.File
 import kotlin.system.exitProcess
@@ -22,6 +24,7 @@ suspend fun main(args: Array<String>) {
     val outputFileName = cliArguments.getOutputFileName(args)
     val headers = cliArguments.getHeaders()
     val numberOfConnections = cliArguments.getParallelConnections()
+    Constants.VERBOSE = args.contains("--verbose")
 
     if (outputFileName != null && !isValidPath(outputFileName)) {
         exitProcess(0)
@@ -48,11 +51,14 @@ suspend fun main(args: Array<String>) {
             ?.sortedBy { it?.label?.filter { char -> char.isDigit() }?.toInt() }
 
         if (videoSources == null) {
-            println("Video not found")
+            Logger.error("Video with ID $videoID not found")
             exitProcess(0)
         }
 
-        println("Choose the resolution you want to download:")
+        // For some reason ANSI applies to rest of text in the terminal starting from here
+        // I'm not sure what causes that, so I removed all error logger here, and it still occurs
+        // the only solution for now is to reset ANSI before displaying the message
+        println("${Logger.RESET}Choose the resolution you want to download:")
         videoSources
             .forEachIndexed { index, video ->
                 println("${index + 1}] ${video?.label} - ${formatBytes(video?.size)}")
@@ -64,13 +70,14 @@ suspend fun main(args: Array<String>) {
 
         if (resolution != null) {
 
+            val defaultFileName = "${url.getParameter("v")}_${resolution}_${System.currentTimeMillis()}.mp4"
             val outputFile = outputFileName?.let { File(it) } ?: run {
-                println("\nOutput file not specified. The video will be saved in the 'Downloads' folder as '${url.getVParameter()}_$resolution.mp4'.")
-                File(".", "${url.getVParameter()}_$resolution.mp4") // default directory and name for saving video
+                Logger.warn("No output file specified. The video will be saved to the current directory as '$defaultFileName'.\n")
+                File(".", defaultFileName) // Default directory and name for saving video
             }
 
             val config = Config(url, resolution, outputFile, headers, numberOfConnections)
-            println("\nvideo with id $videoID and resolution $resolution being processed....\n")
+            Logger.info("video with id $videoID and resolution $resolution being processed...\n")
             videoDownloader.downloadSegmentsInParallel(config, videoMetadata)
         }
     } catch (e: NoSuchElementException) {
