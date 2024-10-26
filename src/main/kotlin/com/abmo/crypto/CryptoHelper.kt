@@ -1,7 +1,10 @@
-package com.abmo.util
+package com.abmo.crypto
 
+import com.abmo.common.Logger
+import com.abmo.executor.JavaScriptExecutor
 import com.google.gson.Gson
 import com.abmo.model.Video
+import com.google.gson.JsonSyntaxException
 import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -12,6 +15,7 @@ class CryptoHelper(
 ) {
 
     fun decodeEncryptedString(encryptedInput: String?): Video? {
+        Logger.debug("Starting decryption and decoding of the encrypted response.")
         if (encryptedInput != null) {
             var sanitizedInput = encryptedInput
             val decryptionKey = "RB0fpH8ZEyVLkv7c2i6MAJ5u3IKFDxlS1NTsnGaqmXYdUrtzjwObCgQP94hoeW+/="
@@ -31,7 +35,14 @@ class CryptoHelper(
                 if (fourthCharCode != 0x40) decodedString += thirdCharValue.toChar()
                 if (fifthCharCode != 0x40) decodedString += fifthCharCode.toChar()
             }
-            return Gson().fromJson(decodeUtf8String(decodedString), Video::class.java)
+            Logger.debug("Decryption successful. Decrypted data (truncated): ${decodedString.take(100)}...")
+            return try {
+                Logger.debug("Deserializing JSON string to Video object.")
+                Gson().fromJson(decodeUtf8String(decodedString), Video::class.java)
+            } catch (e: JsonSyntaxException) {
+                Logger.error("Failed to deserialize JSON to Video object: ${e.message}")
+                null
+            }
         } else {
             return null
         }
