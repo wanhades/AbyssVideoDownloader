@@ -6,10 +6,6 @@ on:
       - master
   workflow_dispatch:
 
-env:
-  VERSION: "1.4"
-  BUILD_NUMBER: ${{ github.run_number }}
-  RELEASE_NAME: "abyss-dl-${{ env.VERSION }}-build${{ env.BUILD_NUMBER }}"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -46,8 +42,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v2.0.6
         with:
-          tag_name: ${{ env.VERSION }}
-          name: ${{ env.RELEASE_NAME }}
-          files: |
-            AbyssVideoDownloader/build/libs/abyss-dl.jar
+          tag_name: 1.4
+          name: AbyssVideoDownloader-v${{ github.run_number }}
+          files: AbyssVideoDownloader/build/libs/abyss-dl.jar
           draft: true
