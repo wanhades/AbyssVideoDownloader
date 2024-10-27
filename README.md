@@ -4,11 +4,84 @@
 
 ## Prerequisites
 
-Before using AbyssVideoDownloader, ensure you have:
+Before using AbyssVideoDownloader, ensure you have Java Development Kit (JDK 21) is installed.
 
-- **Java Development Kit (JDK 21)**: [Download JDK 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
+### Installation Instructions for JDK 21
 
-## Installation
+<details>
+    <summary>Linux</summary>
+
+
+To install JDK 21 on a Linux machine using the command line:
+
+1. **Open Terminal** on your Linux machine.
+2. **Update package index**:
+
+   ```bash
+   sudo apt update
+   ```
+
+3. **Install OpenJDK 21** (if available via your package manager):
+
+   ```bash
+   sudo apt install openjdk-21-jdk
+   ```
+
+   If JDK 21 is not available in your distribution’s package manager, you can manually download and install it:
+
+    1. **Download JDK 21** from [Oracle's official site](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html).
+
+    2. **Extract the downloaded archive** (replace `jdk-21_linux-x64_bin.tar.gz` with the actual file name):
+
+       ```bash
+       tar -xvzf jdk-21_linux-x64_bin.tar.gz
+       ```
+
+    3. **Move the JDK folder** to `/opt`:
+
+       ```bash
+       sudo mv jdk-21 /opt/
+       ```
+
+    4. **Set environment variables**:
+
+       ```bash
+       sudo update-alternatives --install /usr/bin/java java /opt/jdk-21/bin/java 1
+       sudo update-alternatives --install /usr/bin/javac javac /opt/jdk-21/bin/javac 1
+       ```
+
+    5. **Verify the installation**:
+
+       ```bash
+       java -version
+       ```
+
+  </details>
+
+<details>
+    <summary>Windows</summary>
+
+
+To install JDK 21 on a Windows machine:
+
+1. **Download JDK 21** from [Oracle's official site](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html).
+2. **Run the installer** and follow the on-screen instructions.
+3. During the installation, make sure to select the option to **add Java to your system’s PATH**.
+4. **Verify the installation**:
+
+    - Open **Command Prompt** (`cmd`).
+    - Type the following command:
+
+      ```cmd
+      java -version
+      ```
+
+If command return the version number (e.g., `java 21`), then the installation was successful.
+
+</details>
+
+
+## Getting the JAR File
 
 You have two options for obtaining the `abyss-dl.jar` file:
 
@@ -31,21 +104,29 @@ To download a video, follow these steps:
    ```bash
    java -jar abyss-dl.jar [-H <header>] [--header <header>] [-o <output_file_path>] [-c <number_of_connections>]
    ```
+- **Add HTTP Headers** (Optional):
+    - Use `-H <header>` or `--header <header>` to include additional information with your request.
+    - Example: `-H "Authorization: Bearer TOKEN"`
+    - You can add multiple headers by repeating the `-H` or `--header` option.
 
-   - **Add HTTP Headers** (Optional):
-      - Use `-H <header>` or `--header <header>` to include additional information with your request.
-      - Example: `-H "Authorization: Bearer TOKEN"`
-      - You can add multiple headers by repeating the `-H` or `--header` option.
+&nbsp;
 
-   - **Specify Output File** (Optional):
-      - Use `-o <output_file_path>` to choose where to save the downloaded video.
-      - Example: `-o /path/to/my_video.mp4`
-      - If you don’t specify a path, the video will be saved in the current directory with a default name.
+- **Specify Output File** (Optional):
+    - Use `-o <output_file_path>` to choose where to save the downloaded video.
+    - Example: `-o /path/to/my_video.mp4`
+    - If you don’t specify a path, the video will be saved in the current directory with a default name.
 
-   - **Set Number of Connections** (Optional):
-      - Use `-c <number_of_connections>` or `--connections <number_of_connections>` to set how many connections to use for downloading. This can help speed up the download.
-      - The number must be between 1 and 10 by default it is set to 6.
-      - Example: `-c 7`
+&nbsp;
+- **Set Number of Connections** (Optional):
+    - Use `-c <number_of_connections>` or `--connections <number_of_connections>` to set how many connections to use for downloading. This can help speed up the download.
+    - The number must be between 1 and 10; by default, it is set to 4.
+    - Example: `-c 7`
+
+&nbsp;
+
+- **Verbose Mode** (Optional):
+    - Use the `--verbose` flag to enable verbose output.
+
 
 ### Examples
 
@@ -82,51 +163,21 @@ To download a video, follow these steps:
 
 ## Building the Project
 
-To build the AbyssVideoDownloader, you can use the Gradle Wrapper
+You can build the AbyssVideoDownloader project using GitHub Actions by following these steps:
 
 ### Steps to Build the Project
 
-1. **Clone the Repository**:
-   First, clone the project repository using Git. Open your terminal and run:
+1. **Fork the Repository**:
+    - Click the **"Fork"**.
 
-   ```bash
-   git clone https://github.com/abdlhay/AbyssVideoDownloader.git
-   ```
+2. **Open the Actions Tab**:
+    - Navigate to your forked repository and click on the **"Actions"** tab.
 
-2. **Change into the Project Directory**:
-   Navigate into the cloned project directory:
+3. **Run the Build Workflow**:
+    - Find the build workflow `build AbyssVideoDownloader`, click on it, and then select **"Run workflow"**.
 
-   ```bash
-   cd AbyssVideoDownloader
-   ```
-
-3. **Run the Build Command**:
-   Use the following command to build the project:
-
-   ```bash
-   ./gradlew build
-   ```
-
-   - On Windows, use the following command instead:
-
-   ```bash
-   gradlew.bat build
-   ```
-
-4. **Locate the JAR File**:
-   After the build process completes successfully, the JAR file `abyss-dl.jar` will be located in the `build/libs` directory.
-
-   - You can find the JAR file at the following path:
-     ```
-     build/libs/abyss-dl.jar
-     ```
-
-5. **Run the Application**:
-   You can now run the application using the generated JAR file with the following command:
-
-   ```bash
-   java -jar build/libs/abyss-dl.jar
-   ```
+4. **Access the Releases Section**:
+    - After the build completes, navigate to the **Releases** section of your repository. The JAR file, `abyss-dl.jar`, will be available for download there.
 
 ## TODOs
 
@@ -134,10 +185,10 @@ Here are the planned tasks and features for future updates:
 
 - [ ] Clean Code.
 - [x] Add support for multiple parallel downloads.
-- [ ] Integrate dependency injection maybe
+- [ ] (Maybe) Integrate dependency injection
 - [ ] Improve error handling and provide more descriptive messages for common issues.
 - [ ] Implement retry and resume logic for failed downloads.
-- [ ] Enhance logging with different verbosity levels (e.g., debug, info, error).
+- [x] Enhance logging with different verbosity levels (e.g., debug, info, error).
 - [ ] Add support for proxy configuration.
 - [ ] Add a graphical user interface (GUI) for easier interaction or maybe an android app
 
