@@ -8,9 +8,11 @@ class ProviderDispatcher(
     private val javaScriptExecutor: JavaScriptExecutor
 ) {
 
+    // still this isn't an efficient and clean way to map domains to a provider
+    // it will become a mess when more hosts are added
     fun getProviderForUrl(url: String): Provider {
         return when(url.getHost()) {
-            "tvphim.my", "tvphim.cx" -> TvphimProvider(javaScriptExecutor)
+            "tvphim.my", "tvphim.cx", "tvphim.id" -> TvphimProvider(javaScriptExecutor)
             "sieutamphim.com" -> SieutamphimProvider()
             "phimbet.biz" -> PhimbetProvider()
             "fimmoi.top" -> FimmoiProvider()
