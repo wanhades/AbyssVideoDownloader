@@ -48,7 +48,7 @@ suspend fun main(args: Array<String>) {
         val videoMetadata = videoDownloader.getVideoMetaData(url, headers ?: defaultHeader)
 
         val videoSources = videoMetadata?.sources
-            ?.sortedBy { it?.label?.filter { char -> char.isDigit() }?.toInt() }
+            ?.sortedBy { it?.label?.filter { char -> char.isDigit() }?.toIntOrNull() }
 
         if (videoSources == null) {
             Logger.error("Video with ID $videoID not found")
