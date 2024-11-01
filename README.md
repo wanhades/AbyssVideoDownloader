@@ -89,7 +89,7 @@ You have two options for obtaining the `abyss-dl.jar` file:
    - You can download the latest `abyss-dl.jar` file from the [Releases](https://github.com/abdlhay/AbyssVideoDownloader/releases) section of this repository.
 
 2. **Build the JAR File Manually**:
-   - If you prefer to build the project yourself or want the latest updates, follow the instructions in the [**Building the Project**](https://github.com/abdlhay/AbyssVideoDownloader#building-the-project) section below.
+   - If you prefer to build the project yourself or want the latest updates, follow the instructions in the [**Building the Project**](#building-the-project) section below.
 
 
 ## Usage
