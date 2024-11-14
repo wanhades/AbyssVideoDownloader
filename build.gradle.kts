@@ -1,4 +1,10 @@
 import proguard.gradle.ProGuardTask
+val koinVersion: String by project
+val gsonVersion: String by project
+val unirestVersion: String by project
+val rhinoVersion: String by project
+val kotlinCoroutinesVersion: String by project
+val jsoupVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -17,6 +23,7 @@ application {
 
 repositories {
     mavenCentral()
+    maven(url = "https://dl.bintray.com/ekito/koin")
 }
 buildscript {
     dependencies {
@@ -26,11 +33,24 @@ buildscript {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("com.google.code.gson:gson:2.11.0")
-    implementation("com.mashape.unirest:unirest-java:1.4.9")
-    implementation("org.mozilla:rhino:1.7.15")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-    implementation("org.jsoup:jsoup:1.18.1")
+
+    // JSON parsing and serialization
+    implementation("com.google.code.gson:gson:$gsonVersion")
+
+    // HTTP client for making requests
+    implementation("com.mashape.unirest:unirest-java:$unirestVersion")
+
+    // JavaScript engine for executing scripts
+    implementation("org.mozilla:rhino:$rhinoVersion")
+
+    // Kotlin's coroutines for asynchronous programming
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
+
+    // HTML parser and web scraping library
+    implementation("org.jsoup:jsoup:$jsoupVersion")
+
+    // dependency injection
+    implementation("io.insert-koin:koin-core:$koinVersion")
 }
 
 tasks.test {
