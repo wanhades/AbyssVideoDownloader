@@ -9,19 +9,31 @@ import java.io.FileNotFoundException
 
 fun Any.toJson(): String = Gson().toJson(this)
 
-
+/**
+ * Fetches the HTML document from the URL represented by the string.
+ *
+ * @return The parsed `Document` object representing the HTML content.
+ * @throws IllegalArgumentException if the URL is malformed or cannot be accessed.
+ * @throws IOException if an I/O error occurs while attempting to retrieve the document.
+ */
 fun String.fetchDocument(): Document = Jsoup.connect(this).get()
 
+/**
+ * Parses the string as an HTML document using Jsoup.
+ *
+ * @return The parsed `Document` object representing the HTML content.
+ */
 fun String.toJsoupDocument(): Document = Jsoup.parse(this)
 
+/**
+ * Finds and returns the value associated with the given key in a JSON string.
+ *
+ * @param key The key to search for.
+ * @return The corresponding value as a String, or null if not found.
+ */
 fun String.findValueByKey(key: String): String? {
-    // Regex pattern to match "key": followed by any value (string, number, HTML, etc.)
-    // It handles cases where the value might be a quoted string or not quoted (e.g., number, null, boolean)
     val regex = """"$key"\s*:\s*("(?:[^"\\]*(?:\\.[^"\\]*)*)"|[^\s,}]+)""".toRegex()
-
-    // find matches in the JSON string
     val matchResult = regex.find(this)
-
     return matchResult?.groupValues?.get(1)?.let {
         if (it.startsWith("\"") && it.endsWith("\"")) {
             it.substring(1, it.length - 1)

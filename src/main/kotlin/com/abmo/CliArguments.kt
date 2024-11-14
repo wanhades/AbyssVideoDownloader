@@ -1,37 +1,43 @@
 package com.abmo
 
 import com.abmo.common.Constants.DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
+import com.abmo.common.Logger
 
+/**
+ * A class for parsing command-line arguments.
+ *
+ * @param args The array of command-line arguments.
+ */
 class CliArguments(private val args: Array<String>) {
 
+    /**
+     * Extracts headers from command-line arguments in the format "--header key:value".
+     *
+     * @return A map of header names to their values, or null if no headers are found.
+     */
     fun getHeaders(): Map<String, String>? {
         val headers = mutableMapOf<String, String>()
-        var i = 0
 
-        while (i < args.size) {
-            when (args[i]) {
-                "--header", "-H" -> {
-                    if (i + 1 < args.size) {
-                        val header = args[i + 1]
-                        val parts = header.split(":", limit = 2)
-                        if (parts.size == 2) {
-                            val key = parts[0].trim()
-                            val value = parts[1].trim()
-                            headers[key] = value
-                        } else {
-                            println("Invalid header format. Use 'Header-Name: Header-Value'")
-                        }
-                        i += 1
-                    }
+        for (i in args.indices) {
+            if (args[i] in arrayOf("--header", "-H") && i + 1 < args.size) {
+                val (key, value) = args[i + 1].split(":", limit = 2).map { it.trim() }
+                if (key.isNotEmpty() && value.isNotEmpty()) {
+                    headers[key] = value
+                } else {
+                    Logger.error("Invalid header format. Use 'Header-Name: Header-Value'")
                 }
             }
-            i += 1
         }
 
         return headers.ifEmpty { null }
     }
 
-    fun getOutputFileName(args: Array<String>): String? {
+    /**
+     * Retrieves the output file name from command-line arguments.
+     *
+     * @return The output file path as a String, or null if not specified.
+     */
+    fun getOutputFileName(): String? {
         val index = args.indexOf("-o")
         if (index != -1 && index + 1 < args.size) {
             val filePath = args[index + 1]
@@ -40,6 +46,12 @@ class CliArguments(private val args: Array<String>) {
         return null
     }
 
+    /**
+     * Retrieves the number of parallel connections from command-line arguments.
+     *
+     * @return The number of connections, constrained between 1 and 10.
+     *         Returns the default value if not specified.
+     */
     fun getParallelConnections(): Int {
         val maxConnections = 10
         val minConnections = 1
@@ -53,5 +65,7 @@ class CliArguments(private val args: Array<String>) {
 
         return DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
     }
+
+    fun isVerboseEnabled() = args.contains("--verbose")
 
 }

@@ -1,5 +1,10 @@
 package com.abmo.util
 
+/**
+ * Converts a duration in milliseconds to a human-readable time format.
+ *
+ * @return A String representing the duration in hours, minutes, and seconds.
+ */
 fun Long.toReadableTime(): String {
     val totalSeconds = this / 1000
     val seconds = totalSeconds % 60
@@ -14,17 +19,21 @@ fun Long.toReadableTime(): String {
     }
 }
 
-
-fun formatBytes(bytes: Long?): String {
-    if (bytes == null) return ""
+/**
+ * Converts a byte value to a human-readable format (KB, MB, GB).
+ *
+ * @return A String representing the size in a human-readable format, or an empty String if null.
+ */
+fun Long?.formatBytes(): String {
+    if (this == null) return ""
     val kilobyte = 1024.0
     val megabyte = kilobyte * 1024
     val gigabyte = megabyte * 1024
 
     return when {
-        bytes >= gigabyte -> String.format("%.2f GB", bytes / gigabyte)
-        bytes >= megabyte -> String.format("%.2f MB", bytes / megabyte)
-        bytes >= kilobyte -> String.format("%.2f KB", bytes / kilobyte)
-        else -> "$bytes Bytes"
+        this >= gigabyte -> String.format("%.2f GB", this / gigabyte)
+        this >= megabyte -> String.format("%.2f MB", this / megabyte)
+        this >= kilobyte -> String.format("%.2f KB", this / kilobyte)
+        else -> "$this Bytes"
     }
 }

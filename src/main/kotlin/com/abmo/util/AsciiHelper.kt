@@ -17,6 +17,15 @@ fun displayProgressBar(bytesDownloaded: Long, totalSize: Long, startTime: Long) 
     }
 }
 
+/**
+ * Displays a progress bar in the console for the download progress.
+ *
+ * @param current The index of the current segment being processed.
+ * @param totalSegments The total number of segments to be processed.
+ * @param bytesDownloaded The total number of bytes downloaded.
+ * @param totalDownloaded The total number of segments downloaded so far.
+ * @param startTime The start time of the download in milliseconds.
+ */
 fun displayProgressBar(current: Int, totalSegments: Int, bytesDownloaded: Long, totalDownloaded: Int, startTime: Long) {
     val progress = totalDownloaded.toDouble() / totalSegments
     val barLength = 50

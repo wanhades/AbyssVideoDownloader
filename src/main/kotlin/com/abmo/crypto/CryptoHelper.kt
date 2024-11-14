@@ -5,15 +5,24 @@ import com.abmo.executor.JavaScriptExecutor
 import com.google.gson.Gson
 import com.abmo.model.Video
 import com.google.gson.JsonSyntaxException
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-class CryptoHelper(
-    private val javaScriptExecutor: JavaScriptExecutor
-) {
+class CryptoHelper : KoinComponent {
 
+    private val javaScriptExecutor: JavaScriptExecutor by inject()
+    private val gson: Gson by inject()
+
+    /**
+     * Decrypts and decodes an encrypted string into a `Video` object.
+     *
+     * @param encryptedInput The encrypted input string to decode and decrypt.
+     * @return The decoded `Video` object, or null if decryption or deserialization fails.
+     */
     fun decodeEncryptedString(encryptedInput: String?): Video? {
         Logger.debug("Starting decryption and decoding of the encrypted response.")
         if (encryptedInput != null) {
@@ -38,7 +47,7 @@ class CryptoHelper(
             Logger.debug("Decryption successful. Decrypted data (truncated): ${decodedString.take(100)}...")
             return try {
                 Logger.debug("Deserializing JSON string to Video object.")
-                Gson().fromJson(decodeUtf8String(decodedString), Video::class.java)
+                gson.fromJson(decodeUtf8String(decodedString), Video::class.java)
             } catch (e: JsonSyntaxException) {
                 Logger.error("Failed to deserialize JSON to Video object: ${e.message}")
                 null
@@ -71,6 +80,14 @@ class CryptoHelper(
     }
 
 
+    /**
+     * Initializes a Cipher object for AES encryption or decryption.
+     *
+     * @param mode The operation mode (Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE).
+     * @param key The secret key used for the cipher. It must be 16 bytes long (128 bits) for AES.
+     * @return The initialized Cipher object.
+     * @throws Exception If an error occurs during cipher initialization.
+     */
     private fun initCipher(mode: Int, key: String): Cipher {
         val keyBytes = key.toByteArray(StandardCharsets.UTF_8)
         val iv = keyBytes.sliceArray(0 until 16)
@@ -81,6 +98,14 @@ class CryptoHelper(
         return cipher
     }
 
+    /**
+     * Encrypts the given data using AES in CTR mode.
+     *
+     * @param data The plaintext data to be encrypted. If null, encryption will not be performed.
+     * @param key The secret key used for encryption. It must be 16 bytes long (128 bits) for AES.
+     * @return The encrypted data as a string encoded in ISO-8859-1.
+     * @throws Exception If an error occurs during encryption.
+     */
     fun encryptAESCTR(data: String?, key: String): String {
         val cipher = initCipher(Cipher.ENCRYPT_MODE, key)
         val dataBytes = data?.toByteArray(StandardCharsets.UTF_8)
@@ -88,7 +113,14 @@ class CryptoHelper(
         return String(encryptedBytes, Charsets.ISO_8859_1)
     }
 
-
+    /**
+     * Decrypts the given byte array using AES in CTR mode.
+     *
+     * @param data The encrypted data as a byte array to be decrypted.
+     * @param key The secret key used for decryption. It must be 16 bytes long (128 bits) for AES.
+     * @return The decrypted plaintext data as a byte array.
+     * @throws Exception If an error occurs during decryption.
+     */
     fun decryptAESCTR(data: ByteArray, key: String): ByteArray {
         val cipher = initCipher(Cipher.DECRYPT_MODE, key)
         return cipher.doFinal(data)
