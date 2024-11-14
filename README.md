@@ -185,7 +185,7 @@ Here are the planned tasks and features for future updates:
 
 - [ ] Clean Code.
 - [x] Add support for multiple parallel downloads.
-- [ ] (Maybe) Integrate dependency injection
+- [x] Integrate dependency injection
 - [ ] Improve error handling and provide more descriptive messages for common issues.
 - [ ] Implement retry and resume logic for failed downloads.
 - [x] Enhance logging with different verbosity levels (e.g., debug, info, error).
