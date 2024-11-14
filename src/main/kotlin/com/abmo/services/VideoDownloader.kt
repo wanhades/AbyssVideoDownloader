@@ -1,9 +1,8 @@
 package com.abmo.services
 
 import com.abmo.common.Logger
-import com.abmo.model.*
 import com.abmo.crypto.CryptoHelper
-import com.abmo.executor.JavaScriptExecutor
+import com.abmo.model.*
 import com.abmo.util.displayProgressBar
 import com.abmo.util.toJson
 import com.abmo.util.toReadableTime
@@ -125,7 +124,7 @@ class VideoDownloader: KoinComponent {
      *
      * @param segmentFolderPath The folder containing the video segments.
      * @param output The output file where the merged segments will be written.
-     * @throws IOException If there is an error reading or writing the segment files.
+     * @throws Exception If there is an error reading or writing the segment files.
      */
     private fun mergeSegmentsIntoMp4(segmentFolderPath: File, output: File) {
         val segmentFiles  = segmentFolderPath.listFiles { file -> file.name.startsWith("segment_") }
@@ -269,7 +268,7 @@ class VideoDownloader: KoinComponent {
      * @throws Exception If the request fails or the response status is not successful.
      */
     private suspend fun requestSegment(url: String, body: String, index: Int? = null): Flow<ByteArray> = flow {
-        println("\n")
+//        println("\n")
         Logger.debug("[$index] Starting HTTP POST request to $url with body length: ${body.length}. Body (truncated): \"...$body")
         val response = Unirest.post(url)
             .header("Content-Type", "application/json")
@@ -279,7 +278,7 @@ class VideoDownloader: KoinComponent {
         val rawBody = response.rawBody
         val responseCode = response.status
 
-        println("\n")
+//        println("\n")
         Logger.debug("[$index] Received response with status $responseCode\n", responseCode !in 200..299)
 
         val buffer = ByteArray(65536)

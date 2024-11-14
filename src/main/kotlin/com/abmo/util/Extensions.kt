@@ -14,7 +14,7 @@ fun Any.toJson(): String = Gson().toJson(this)
  *
  * @return The parsed `Document` object representing the HTML content.
  * @throws IllegalArgumentException if the URL is malformed or cannot be accessed.
- * @throws IOException if an I/O error occurs while attempting to retrieve the document.
+ * @throws Exception if an I/O error occurs while attempting to retrieve the document.
  */
 fun String.fetchDocument(): Document = Jsoup.connect(this).get()
 
@@ -32,7 +32,7 @@ fun String.toJsoupDocument(): Document = Jsoup.parse(this)
  * @return The corresponding value as a String, or null if not found.
  */
 fun String.findValueByKey(key: String): String? {
-    val regex = """"$key"\s*:\s*("(?:[^"\\]*(?:\\.[^"\\]*)*)"|[^\s,}]+)""".toRegex()
+    val regex = """"$key"\s*:\s*("[^"\\]*(?:\\.[^"\\]*)*"|[^\s,}]+)""".toRegex()
     val matchResult = regex.find(this)
     return matchResult?.groupValues?.get(1)?.let {
         if (it.startsWith("\"") && it.endsWith("\"")) {
