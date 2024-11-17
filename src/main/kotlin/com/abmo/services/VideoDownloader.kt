@@ -83,7 +83,7 @@ class VideoDownloader: KoinComponent {
         Logger.info("Download took: $duration")
         Logger.success("All segments have been downloaded successfully!")
         Logger.info("merging segments into mp4 file...")
-        config.outputFile?.let { mergeSegmentsIntoMp4(tempFolder, it) }
+        config.outputFile?.let { mergeSegmentsIntoMp4File(tempFolder, it) }
 
     }
 
@@ -119,14 +119,8 @@ class VideoDownloader: KoinComponent {
     }
 
 
-    /**
-     * Merges video segments into a single MP4 file and cleans up the temporary segment folder.
-     *
-     * @param segmentFolderPath The folder containing the video segments.
-     * @param output The output file where the merged segments will be written.
-     * @throws Exception If there is an error reading or writing the segment files.
-     */
-    private fun mergeSegmentsIntoMp4(segmentFolderPath: File, output: File) {
+
+    private fun mergeSegmentsIntoMp4File(segmentFolderPath: File, output: File) {
         val segmentFiles  = segmentFolderPath.listFiles { file -> file.name.startsWith("segment_") }
             ?.toList()
             ?.sortedBy { it.name.removePrefix("segment_").toIntOrNull() }
@@ -179,12 +173,7 @@ class VideoDownloader: KoinComponent {
         return cryptoHelper.decodeEncryptedString(encryptedVideoData)
     }
 
-    /**
-     * Extracts encrypted video metadata from an HTML string using a regex pattern.
-     *
-     * @param html The HTML content to extract the metadata from.
-     * @return The extracted encrypted video metadata, or null if not found.
-     */
+
     private fun extractEncryptedVideoMetaData(html: String): String? {
         Logger.debug("Starting extraction of encrypted video metadata from HTML content.")
         val regex = """JSON\.parse\(atob\("([^"]+)"\)\)""".toRegex()
@@ -206,13 +195,7 @@ class VideoDownloader: KoinComponent {
         return "https://${video?.domain}/${video?.id}"
     }
 
-    /**
-     * Generates a list of `LongRange` objects for splitting a given size into smaller ranges.
-     *
-     * @param size The total size to split into ranges.
-     * @param step The size of each range (default is 2MB).
-     * @return A list of `LongRange` representing the size ranges.
-     */
+
     private fun generateRanges(size: Long, step: Long = 2097152): List<LongRange> {
         val ranges = mutableListOf<LongRange>()
 
@@ -232,12 +215,7 @@ class VideoDownloader: KoinComponent {
         return ranges
     }
 
-    /**
-     * Generates and encrypts the body for segment POST requests based on video size.
-     *
-     * @param simpleVideo The video data to generate segments for.
-     * @return A list of encrypted segment bodies as strings or emptyList if video is size is null.
-     */
+
     private fun generateSegmentsBody(simpleVideo: SimpleVideo?): List<String> {
         Logger.debug("Generating segment POST request body and encrypting the data.")
         val fragmentList = mutableListOf<String>()
@@ -258,15 +236,6 @@ class VideoDownloader: KoinComponent {
     }
 
 
-    /**
-     * Sends an HTTP POST request and returns the response body as a flow of byte arrays.
-     *
-     * @param url The URL to send the POST request to.
-     * @param body The body of the POST request.
-     * @param index An optional index for logging purposes.
-     * @return A flow of byte arrays representing the response body.
-     * @throws Exception If the request fails or the response status is not successful.
-     */
     private suspend fun requestSegment(url: String, body: String, index: Int? = null): Flow<ByteArray> = flow {
 //        println("\n")
         Logger.debug("[$index] Starting HTTP POST request to $url with body length: ${body.length}. Body (truncated): \"...$body")

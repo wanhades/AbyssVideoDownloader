@@ -12,13 +12,7 @@ object Logger {
     private const val CYAN = "\u001B[36m"
     private const val GREEN = "\u001B[32m"
 
-    /**
-     * Enables ANSI color support on Windows Command Prompt (CMD) for Windows 10 and above.
-     *
-     * Checks if the operating system is Windows and, if so, attempts to enable ANSI escape
-     * code support for colored text output in CMD. This is done by running a command in CMD
-     * if a console is available.
-     */
+
     private fun enableAnsiOnWindows() {
         if (System.getProperty("os.name").contains("Windows")) {
             try {
@@ -31,14 +25,8 @@ object Logger {
         }
     }
 
-    /**
-     * Wraps the given text with an ANSI color code, applying the specified color.
-     *
-     * @param text The text to be colorized.
-     * @param colorCode The ANSI color code to apply to the text.
-     * @return The colorized text, with the color code prepended and a reset code appended.
-     */
-    private fun colorize( text: String, colorCode: String): String {
+
+    private fun colorizeText(text: String, colorCode: String): String {
         return "$colorCode$text$RESET"
     }
 
@@ -48,7 +36,7 @@ object Logger {
      * @param message The message to be printed as an informational log.
      */
     fun info(message: String) {
-        println(colorize("INFO: $message", CYAN))
+        println(colorizeText("INFO: $message", CYAN))
     }
 
     /**
@@ -57,7 +45,7 @@ object Logger {
      * @param message The message to be printed as a warning log.
      */
     fun warn(message: String) {
-        println(colorize("WARN: $message", YELLOW))
+        println(colorizeText("WARN: $message", YELLOW))
     }
 
     /**
@@ -66,7 +54,7 @@ object Logger {
      * @param message The message to be printed as an error log.
      */
     fun error(message: String) {
-        println(colorize("ERROR: $message", RED))
+        println(colorizeText("ERROR: $message", RED))
     }
 
     /**
@@ -78,7 +66,7 @@ object Logger {
     fun debug(message: String, isError: Boolean = false) {
         if (Constants.VERBOSE) {
             val debugTextColor = if (isError) { RED } else { PURPLE }
-            println(colorize("DEBUG: $message", debugTextColor))
+            println(colorizeText("DEBUG: $message", debugTextColor))
         }
     }
 
@@ -88,6 +76,6 @@ object Logger {
      * @param message The message to be printed as a success log.
      */
     fun success(message: String) {
-        println(colorize("SUCCESS: $message", GREEN))
+        println(colorizeText("SUCCESS: $message", GREEN))
     }
 }

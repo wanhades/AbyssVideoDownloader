@@ -80,14 +80,6 @@ class CryptoHelper : KoinComponent {
     }
 
 
-    /**
-     * Initializes a Cipher object for AES encryption or decryption.
-     *
-     * @param mode The operation mode (Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE).
-     * @param key The secret key used for the cipher. It must be 16 bytes long (128 bits) for AES.
-     * @return The initialized Cipher object.
-     * @throws Exception If an error occurs during cipher initialization.
-     */
     private fun initCipher(mode: Int, key: String): Cipher {
         val keyBytes = key.toByteArray(StandardCharsets.UTF_8)
         val iv = keyBytes.sliceArray(0 until 16)

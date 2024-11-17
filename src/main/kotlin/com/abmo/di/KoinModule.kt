@@ -1,6 +1,6 @@
 package com.abmo.di
 
-import com.abmo.CliArguments
+import com.abmo.util.CliArguments
 import com.abmo.crypto.CryptoHelper
 import com.abmo.executor.JavaScriptExecutor
 import com.abmo.services.ProviderDispatcher
