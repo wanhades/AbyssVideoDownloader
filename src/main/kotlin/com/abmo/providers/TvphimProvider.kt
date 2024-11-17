@@ -32,7 +32,7 @@ class TvphimProvider(
 
     private fun configureTls13Protocol() {
         val sslContext = SSLContexts.custom()
-            .useProtocol("TLSv1.2")
+            .useProtocol("TLSv1.3")
             .build()
 
         val tlsSocketFactory = SSLConnectionSocketFactory(sslContext)
