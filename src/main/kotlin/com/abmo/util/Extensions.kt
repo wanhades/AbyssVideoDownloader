@@ -44,49 +44,55 @@ fun String.findValueByKey(key: String): String? {
 }
 
 fun isValidPath(filePath: String?): Boolean {
-    filePath?.let { path ->
-        return try {
-            val outputFile = File(path).canonicalFile
-            val outputDir = outputFile.parentFile
+    if (filePath.isNullOrBlank()) return false
 
-            if (path.endsWith("/") || path.endsWith("\\")) {
-                Logger.error("Invalid File path.")
-                return false
-            }
+    return try {
+        val outputFile = File(filePath).canonicalFile
+        val outputDir = outputFile.parentFile
 
-            if (outputDir != null) {
-                if (!outputDir.exists()) {
-                    Logger.error("Output directory does not exist: ${outputDir.absolutePath}")
-                    return false
-                }
-                if (!outputDir.isDirectory) {
-                    Logger.error("Output path is not a directory: ${outputDir.absolutePath}")
-                    return false
-                }
-            }
-
-            if (outputFile.name.isBlank()) {
-                Logger.error("No valid file name specified.")
-                return false
-            }
-            if (!outputFile.name.endsWith(".mp4", ignoreCase = true)) {
-                // probably mp4 isn't the only media type the site uses
-                Logger.error("File must have a .mp4 extension: ${outputFile.name}")
-                return false
-            }
-            if (outputFile.exists()) {
-                Logger.error("File already exists: ${outputFile.absolutePath}")
-                return false
-            }
-
-            true // all checks passed
-        } catch (e: FileNotFoundException) {
-            Logger.error("Unable to access path: ${e.message}")
-            false
-        } catch (e: SecurityException) {
-            Logger.error("Error: Access denied to path: ${path}. ${e.message}")
-            false
+        // check for invalid file path
+        if (filePath.endsWith("/") || filePath.endsWith("\\")) {
+            Logger.error("Invalid File path.")
+            return false
         }
+
+        // check if the output directory exists and is a directory
+        outputDir?.let {
+            if (!it.exists()) {
+                Logger.error("Output directory does not exist: ${it.absolutePath}")
+                return false
+            }
+            if (!it.isDirectory) {
+                Logger.error("Output path is not a directory: ${it.absolutePath}")
+                return false
+            }
+        }
+
+        // check if file name is valid
+        if (outputFile.name.isBlank()) {
+            Logger.error("No valid file name specified.")
+            return false
+        }
+
+        // check if file extension is .mp4 (not about sure about restricting extension here but mostly source uses mp4)
+        if (!outputFile.name.endsWith(".mp4", ignoreCase = true)) {
+            Logger.error("File must have a .mp4 extension: ${outputFile.name}")
+            return false
+        }
+
+        // check if file already exists
+        if (outputFile.exists()) {
+            Logger.error("File already exists: ${outputFile.absolutePath}")
+            return false
+        }
+
+        true // all checks passed
+    } catch (e: FileNotFoundException) {
+        Logger.error("Unable to access path: ${e.message}")
+        false
+    } catch (e: SecurityException) {
+        Logger.error("Error: Access denied to path: $filePath. ${e.message}")
+        false
     }
-    return true
 }
+
