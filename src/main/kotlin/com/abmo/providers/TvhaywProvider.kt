@@ -5,7 +5,6 @@ import com.abmo.util.fetchDocument
 
 class TvhaywProvider: Provider {
 
-    // TODO: Refactor duplicated code similar to PhimbetProvider.
     // The logic for extracting video URLs is repeated across multiple providers.
     // Consider moving the common code into a shared base class or utility function to reduce duplication.
     override fun getVideoID(url: String): String? {

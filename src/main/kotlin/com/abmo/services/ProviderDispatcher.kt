@@ -23,16 +23,18 @@ class ProviderDispatcher: KoinComponent {
      * @return An instance of the Provider that matches the URL's host.
      */
     fun getProviderForUrl(url: String): Provider {
-        return when(url.getHost()) {
-            "tvphim.my", "tvphim.cx", "tvphim.id" -> TvphimProvider(javaScriptExecutor)
-            "sieutamphim.com" -> SieutamphimProvider()
-            "phimbet.biz" -> PhimbetProvider()
-            "fimmoi.top" -> FimmoiProvider()
-            "motchill.taxi", "motchill.to", "subnhanh.win" -> MotchillProvider()
-            "animet3.biz" -> Animet3Provider()
-            "tvhayw.org" -> TvhaywProvider()
+        url.getHost().apply {
+           return when {
+                contains("tvphim") -> TvphimProvider(javaScriptExecutor)
+                equals("sieutamphim.com") -> SieutamphimProvider()
+                equals("phimbet.biz") -> PhimbetProvider()
+                equals("fimmoi.top") -> FimmoiProvider()
+                contains("motchill") || equals("subnhanh.win") -> MotchillProvider()
+                equals("animet3.biz") -> Animet3Provider()
+                equals("tvhayw.org") -> TvhaywProvider()
 
-            else -> AbyssToProvider()
+                else -> AbyssToProvider()
+            }
         }
     }
 
