@@ -1,4 +1,4 @@
-package com.abmo
+package com.abmo.util
 
 import com.abmo.common.Constants.DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
 import com.abmo.common.Logger
@@ -66,6 +66,11 @@ class CliArguments(private val args: Array<String>) {
         return DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
     }
 
+    /**
+     * Checks if the verbose flag is enabled in the command-line arguments.
+     *
+     * @return true if "--verbose" is present, false otherwise.
+     */
     fun isVerboseEnabled() = args.contains("--verbose")
 
 }
