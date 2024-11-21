@@ -1,3 +1,6 @@
+## Language Options
+- [Phiên bản Tiếng Việt](README.vn.md)
+
 # AbyssVideoDownloader
 
 **AbyssVideoDownloader** is a command-line Kotlin application that allows users to download Abyss.to videos. It supports downloading videos in different resolutions.
@@ -102,65 +105,71 @@ To download a video, follow these steps:
    Open your terminal and enter the following command:
 
    ```bash
-   java -jar abyss-dl.jar [-H <header>] [--header <header>] [-o <output_file_path>] [-c <number_of_connections>]
+   java -jar abyss-dl.jar <id_or_url_with_resolution> [-H <header>] [--header <header>] [-o <output_file_path>] [-c <number_of_connections>]
    ```
-- **Add HTTP Headers** (Optional):
-    - Use `-H <header>` or `--header <header>` to include additional information with your request.
-    - Example: `-H "Authorization: Bearer TOKEN"`
-    - You can add multiple headers by repeating the `-H` or `--header` option.
 
-&nbsp;
+- **Video URL or ID**:  
+  Provide the video ID or URL at the beginning of the command, followed by an optional resolution (`h`, `m`, `l`).  
+  Examples:
+    - `K8R6OOjS7 h` (High resolution)
+    - `https://abysscdn.com/?v=K8R6OOjS7 l` (Low resolution)
+    - `K8R6OOjS7 m` (Medium resolution)
+    - `K8R6OOjS7 h,K8R6OOjS7 m` (Multiple videos with resolutions)
+- **Add HTTP Headers**:  
+  Use `-H` or `--header` to include headers (e.g., `-H "Authorization: Bearer TOKEN"`). Repeat to add multiple headers.
 
-- **Specify Output File** (Optional):
-    - Use `-o <output_file_path>` to choose where to save the downloaded video.
-    - Example: `-o /path/to/my_video.mp4`
-    - If you don’t specify a path, the video will be saved in the current directory with a default name.
+- **Output File**:  
+  Use `-o <path>` to specify the download location (e.g., `-o /path/video.mp4`). Defaults to the current directory.
 
-&nbsp;
-- **Set Number of Connections** (Optional):
-    - Use `-c <number_of_connections>` or `--connections <number_of_connections>` to set how many connections to use for downloading. This can help speed up the download.
-    - The number must be between 1 and 10; by default, it is set to 4.
-    - Example: `-c 7`
+- **Connections**:  
+  Use `-c <1-10>` to set concurrent connections (default: 4).
 
-&nbsp;
-
-- **Verbose Mode** (Optional):
-    - Use the `--verbose` flag to enable verbose output.
+- **Verbose Mode**:  
+  Add `--verbose` for detailed output.
 
 
 ### Examples
 
 1. **Download a video and save it with a specific name in a chosen folder**:
    ```bash
-   java -jar abyss-dl.jar -o /path/to/directory/my_video.mp4
+   java -jar abyss-dl.jar K8R6OOjS7 -o /path/to/directory/my_video.mp4
    ```
 
 2. **Download a video and save it with the default name in the current directory**:
    ```bash
-   java -jar abyss-dl.jar
+   java -jar abyss-dl.jar K8R6OOjS7
    ```
 
 3. **Download a video using custom headers**:
    ```bash
-   java -jar abyss-dl.jar -H "Authorization: Bearer TOKEN" --header "Referer: https://example.com" -o my_video.mp4
+   java -jar abyss-dl.jar K8R6OOjS7 -H "Authorization: Bearer TOKEN" --header "Referer: https://example.com" -o my_video.mp4
    ```
 
 4. **Download a video with multiple connections**:
    ```bash
-   java -jar abyss-dl.jar -c 7 -o my_video.mp4
+   java -jar abyss-dl.jar K8R6OOjS7 -c 7 -o my_video.mp4
    ```
 
 5. **Download a video using custom headers and multiple connections**:
    ```bash
-   java -jar abyss-dl.jar -H "Authorization: Bearer TOKEN" --header "Referer: https://example.com" -c 3 -o /path/to/my_video.mp4
+   java -jar abyss-dl.jar K8R6OOjS7 -H "Authorization: Bearer TOKEN" --header "Referer: https://example.com" -c 3 -o /path/to/my_video.mp4
    ```
 
-6. After running the command, you will be prompted for the video URL:
-
+6. Download multiple videos with resolutions from a text file or inline:  
+   **From text file:**  
+   The file should list videos as:
+   ```text
+   id1
+   id2 h
+   https://example.com/video l
    ```
-   enter the video URL or ID: https://abysscdn.com/?v=K8R6OOjS7
+   ```bash
+   java -jar abyss-dl.jar videos.txt
+   ```  
+   **Inline with comma-separated values:**
+   ```bash
+   java -jar abyss-dl.jar id1 h,id2 m,https://example.com/video l
    ```
-
 ## Building the Project
 
 You can build the AbyssVideoDownloader project using GitHub Actions by following these steps:
@@ -187,7 +196,8 @@ Here are the planned tasks and features for future updates:
 - [x] Add support for multiple parallel downloads.
 - [x] Integrate dependency injection
 - [ ] Improve error handling and provide more descriptive messages for common issues.
-- [ ] Implement retry and resume logic for failed downloads.
+- [x] resume logic for failed downloads.
+- [ ] Implement retry
 - [x] Enhance logging with different verbosity levels (e.g., debug, info, error).
 - [ ] Add support for proxy configuration.
 - [ ] Add a graphical user interface (GUI) for easier interaction or maybe an android app
