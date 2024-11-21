@@ -5,10 +5,6 @@ import org.mozilla.javascript.Scriptable
 import java.io.InputStream
 
 class JavaScriptExecutor {
-
-
-    private val context = Context.enter()
-
     /**
      * Executes a JavaScript function from a file with the specified arguments.
      *
@@ -19,6 +15,7 @@ class JavaScriptExecutor {
      * @throws IllegalArgumentException If the JavaScript file is not found in resources.
      */
     fun runJavaScriptCode(fileName: String, identifier: String, vararg arguments: Any?): String {
+        val context = Context.enter()
         val scope: Scriptable = context.initStandardObjects()
         val jsFileStream: InputStream = javaClass.getResourceAsStream("/$fileName")
             ?: throw IllegalArgumentException("File $fileName not found in resources")
