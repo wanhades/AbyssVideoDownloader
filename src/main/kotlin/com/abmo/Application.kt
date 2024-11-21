@@ -12,7 +12,7 @@ import org.koin.core.parameter.parametersOf
 import java.io.File
 import kotlin.system.exitProcess
 
-class Application(private val args: Array<String>): KoinComponent {
+class Application(private val args: Array<String>) : KoinComponent {
 
     private val videoDownloader: VideoDownloader by inject()
     private val providerDispatcher: ProviderDispatcher by inject()
@@ -23,65 +23,58 @@ class Application(private val args: Array<String>): KoinComponent {
         val outputFileName = cliArguments.getOutputFileName()
         val headers = cliArguments.getHeaders()
         val numberOfConnections = cliArguments.getParallelConnections()
+        val videoIdsOrUrls = cliArguments.getVideoIdsOrUrlsWithResolutions()
         Constants.VERBOSE = cliArguments.isVerboseEnabled()
 
-        if (outputFileName != null && !isValidPath(outputFileName)) {
-            exitProcess(0)
+        if (outputFileName != null) {
+            if (!isValidPath(outputFileName)) {
+                exitProcess(0)
+            }
         }
 
-        val scanner = java.util.Scanner(System.`in`)
-
-
-        try {
-            println("Enter the video URL or ID (e.g., K8R6OOjS7):")
-            val videoUrl = scanner.nextLine()
+        videoIdsOrUrls.forEach { pairs ->
+            val videoUrl = pairs.first
+            val resolution = pairs.second
 
             val dispatcher = providerDispatcher.getProviderForUrl(videoUrl)
             val videoID = dispatcher.getVideoID(videoUrl)
-
-            val defaultHeader = if (videoUrl.isValidUrl()) {
-                mapOf("Referer" to videoUrl?.extractReferer())
-            } else { emptyMap() }
-
+            val defaultHeader = if (videoUrl.isValidUrl()) { mapOf("Referer" to videoUrl.extractReferer()) } else { emptyMap() }
             val url = "https://abysscdn.com/?v=$videoID"
             val videoMetadata = videoDownloader.getVideoMetaData(url, headers ?: defaultHeader)
-
             val videoSources = videoMetadata?.sources
                 ?.sortedBy { it?.label?.filter { char -> char.isDigit() }?.toIntOrNull() }
 
             if (videoSources == null) {
                 Logger.error("Video with ID $videoID not found")
-                exitProcess(0)
-            }
-
-            // For some reason ANSI applies to rest of text in the terminal starting from here
-            // I'm not sure what causes that, so I removed all error logger here, and it still occurs
-            // the only solution for now is to reset ANSI before displaying the message
-            println("${Logger.RESET}Choose the resolution you want to download:")
-            videoSources
-                .forEachIndexed { index, video ->
-                    println("${index + 1}] ${video?.label} - ${video?.size.formatBytes()}")
+            } else {
+                val mapResolution = when(resolution) {
+                    "h" -> videoSources.maxBy { it?.size!! }?.label
+                    "l" -> videoSources.minBy { it?.size!! }?.label
+                    "m" -> videoSources.sortedBy { it?.size }.let { sorted ->
+                            sorted.getOrNull((sorted.size - 1) / 2) }?.label
+                    else -> videoSources.maxBy { it?.size!! }?.label
                 }
-
-            val choice = scanner.nextInt()
-            val resolution = videoSources[choice - 1]?.label
-
-
-            if (resolution != null) {
-
-                val defaultFileName = "${url.getParameter("v")}_${resolution}_${System.currentTimeMillis()}.mp4"
+                val defaultFileName = "${url.getParameter("v")}_${mapResolution}_${System.currentTimeMillis()}.mp4"
                 val outputFile = outputFileName?.let { File(it) } ?: run {
                     Logger.warn("No output file specified. The video will be saved to the current directory as '$defaultFileName'.\n")
                     File(".", defaultFileName) // Default directory and name for saving video
                 }
-
-                val config = Config(url, resolution, outputFile, headers, numberOfConnections)
-                Logger.info("video with id $videoID and resolution $resolution being processed...\n")
-                videoDownloader.downloadSegmentsInParallel(config, videoMetadata)
+                if (mapResolution != null) {
+                    val config = Config(url, mapResolution, outputFile, headers, numberOfConnections)
+                    Logger.info("video with id $videoID and resolution $mapResolution being processed...\n")
+                    try {
+                        videoDownloader.downloadSegmentsInParallel(config, videoMetadata)
+                    } catch (e: Exception) {
+                        Logger.error(e.message.toString())
+                    }
+                }
             }
-        } catch (e: NoSuchElementException) {
-            println("\nCtrl + C detected. Exiting...")
+            if (videoIdsOrUrls.size > 1) {
+                println("-----------------------------------------$videoID--------------------------------------------------------")
+            }
         }
+
+
 
 
     }
