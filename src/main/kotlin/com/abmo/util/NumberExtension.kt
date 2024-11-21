@@ -6,17 +6,10 @@ package com.abmo.util
  * @return A String representing the duration in hours, minutes, and seconds.
  */
 fun Long.toReadableTime(): String {
-    val totalSeconds = this / 1000
-    val seconds = totalSeconds % 60
-    val totalMinutes = totalSeconds / 60
-    val minutes = totalMinutes % 60
-    val hours = totalMinutes / 60
-
-    return when {
-        hours > 0 -> "$hours hours and $minutes minutes"
-        minutes > 0 -> "$minutes minutes and $seconds seconds"
-        else -> "$seconds seconds"
-    }
+    val hours = this / 3600
+    val minutes = (this % 3600) / 60
+    val seconds = this % 60
+    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
 }
 
 /**
@@ -24,7 +17,7 @@ fun Long.toReadableTime(): String {
  *
  * @return A String representing the size in a human-readable format, or an empty String if null.
  */
-fun Long?.formatBytes(): String {
+fun Long?.formatAsReadableSize(): String {
     if (this == null) return ""
     val kilobyte = 1024.0
     val megabyte = kilobyte * 1024
@@ -35,5 +28,18 @@ fun Long?.formatBytes(): String {
         this >= megabyte -> String.format("%.2f MB", this / megabyte)
         this >= kilobyte -> String.format("%.2f KB", this / kilobyte)
         else -> "$this Bytes"
+    }
+}
+
+fun Long.formatBytes(): Double {
+    val kilobyte = 1024.0
+    val megabyte = kilobyte * 1024
+    val gigabyte = megabyte * 1024
+
+    return when {
+        this >= gigabyte -> this / gigabyte
+        this >= megabyte -> this / megabyte
+        this >= kilobyte -> this / kilobyte
+        else -> this.toDouble()
     }
 }
