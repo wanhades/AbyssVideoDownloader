@@ -2,6 +2,8 @@ package com.abmo.util
 
 import com.abmo.common.Constants.DEFAULT_CONCURRENT_DOWNLOAD_LIMIT
 import com.abmo.common.Logger
+import java.io.File
+import kotlin.system.exitProcess
 
 /**
  * A class for parsing command-line arguments.
@@ -72,5 +74,50 @@ class CliArguments(private val args: Array<String>) {
      * @return true if "--verbose" is present, false otherwise.
      */
     fun isVerboseEnabled() = args.contains("--verbose")
+
+
+    /**
+     * Parses video IDs, URLs, or file input with associated resolutions.
+     *
+     * This function processes arguments to extract video IDs or URLs along with their
+     * specified resolutions (e.g., "h" for high, "m" for medium, "l" for low). It supports:
+     * - A file path containing multiple lines of video IDs or URLs with resolutions.
+     * - A comma-separated list of video IDs or URLs with resolutions.
+     * - A single video ID or URL with an optional resolution.
+     *
+     * @return A list of pairs, where each pair contains a video ID/URL and its resolution.
+     *         If no resolution is provided, defaults to "h" (high).
+     */
+    fun getVideoIdsOrUrlsWithResolutions(): List<Pair<String, String>> {
+        if (args.isEmpty()) {
+            Logger.error("No arguments provided. A video ID, URL, or file path is required.")
+            exitProcess(0)
+        }
+
+        val relevantArgs = args.filterNot { arg ->
+            arg.startsWith("-o") || arg.startsWith("-H") || arg.startsWith("--header") ||
+                    arg.startsWith("-c") || arg.startsWith("--connection")
+        }
+
+        if (relevantArgs.isEmpty()) {
+            Logger.error("No valid video IDs or URLs provided.")
+            exitProcess(0)
+        }
+
+
+        val lastArg = relevantArgs.first()
+
+        return when {
+            File(lastArg).exists() -> {
+                File(lastArg).readLines().flatMap { it.parseVideoIdOrUrlWithResolution() }
+            }
+            lastArg.contains(",") -> {
+                lastArg.split(",").flatMap { it.trim().parseVideoIdOrUrlWithResolution() }
+            }
+            else -> {
+                args.joinToString(" ").trim().parseVideoIdOrUrlWithResolution()
+            }
+        }
+    }
 
 }
