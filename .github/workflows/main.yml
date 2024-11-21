@@ -40,11 +40,6 @@ jobs:
           cd AbyssVideoDownloader
           ./gradlew build
 
-      - name: Create Tag
-        run: |
-           git tag v1.5
-           git push origin v1.5
-
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2.0.6
