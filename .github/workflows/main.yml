@@ -40,11 +40,16 @@ jobs:
           cd AbyssVideoDownloader
           ./gradlew build
 
+      - name: Create Tag
+        run: |
+           git tag v1.5
+           git push origin v1.5
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2.0.6
         with:
-          tag_name: 1.4
+          tag_name: v1.5
           name: AbyssVideoDownloader-v${{ github.run_number }}
           files: AbyssVideoDownloader/build/libs/abyss-dl.jar
           draft: true
