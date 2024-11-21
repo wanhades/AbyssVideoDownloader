@@ -2,8 +2,8 @@ package com.abmo.crypto
 
 import com.abmo.common.Logger
 import com.abmo.executor.JavaScriptExecutor
-import com.google.gson.Gson
 import com.abmo.model.Video
+import com.abmo.util.toObject
 import com.google.gson.JsonSyntaxException
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -15,7 +15,6 @@ import javax.crypto.spec.SecretKeySpec
 class CryptoHelper : KoinComponent {
 
     private val javaScriptExecutor: JavaScriptExecutor by inject()
-    private val gson: Gson by inject()
 
     /**
      * Decrypts and decodes an encrypted string into a `Video` object.
@@ -47,7 +46,7 @@ class CryptoHelper : KoinComponent {
             Logger.debug("Decryption successful. Decrypted data (truncated): ${decodedString.take(100)}...")
             return try {
                 Logger.debug("Deserializing JSON string to Video object.")
-                gson.fromJson(decodeUtf8String(decodedString), Video::class.java)
+                decodeUtf8String(decodedString).toObject<Video>()
             } catch (e: JsonSyntaxException) {
                 Logger.error("Failed to deserialize JSON to Video object: ${e.message}")
                 null
