@@ -7,7 +7,48 @@ import org.jsoup.nodes.Document
 import java.io.File
 import java.io.FileNotFoundException
 
+
 fun Any.toJson(): String = Gson().toJson(this)
+
+inline fun <reified T> String.toObject(): T {
+    return Gson().fromJson(this, T::class.java)
+}
+
+/**
+ * Parses a string into video IDs/URLs with their respective resolutions.
+ *
+ * This function processes a string containing video IDs or URLs, optionally followed
+ * by a resolution specifier ("h", "m", "l"). Multiple entries can be separated by commas.
+ * If no resolution is specified, it defaults to "h" (high).
+ *
+ * Example Input:
+ * - "id1 h,id2 l,http://example.com m"
+ *
+ * Example Output:
+ * - [("id1", "h"), ("id2", "l"), ("http://example.com", "m")]
+ *
+ * @receiver The input string containing video IDs/URLs and optional resolutions.
+ * @return A list of pairs, where each pair contains a video ID/URL and its resolution.
+ *         Defaults to "h" for missing or invalid resolutions.
+ */
+fun String.parseVideoIdOrUrlWithResolution(): List<Pair<String, String>> {
+    val results = mutableListOf<Pair<String, String>>()
+    val segments = this.split(",")
+
+    for (segment in segments) {
+        val parts = segment.trim().split(" ")
+        val videoIdOrUrl = parts.firstOrNull()?.trim()
+        val resolution = parts.getOrNull(1)?.lowercase()?.takeIf { it in listOf("h", "m", "l") } ?: "h"
+
+        if (!videoIdOrUrl.isNullOrEmpty()) {
+            results.add(videoIdOrUrl to resolution)
+        } else {
+            Logger.error("Invalid format. Ensure video ID or URL is specified.")
+        }
+    }
+
+    return results
+}
 
 /**
  * Fetches the HTML document from the URL represented by the string.
