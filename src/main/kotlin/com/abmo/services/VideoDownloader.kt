@@ -7,10 +7,7 @@ import com.abmo.util.displayProgressBar
 import com.abmo.util.toJson
 import com.abmo.util.toReadableTime
 import com.mashape.unirest.http.Unirest
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -19,6 +16,8 @@ import kotlinx.coroutines.sync.withPermit
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 class VideoDownloader: KoinComponent {
 
@@ -39,51 +38,66 @@ class VideoDownloader: KoinComponent {
         val segmentUrl = getSegmentUrl(videoMetadata)
         val decryptionKey = cryptoHelper.getKey(simpleVideo?.size)
 
-        val tempFolderName = "temp_${simpleVideo?.slug}_${simpleVideo?.label}"
-        val tempFolder = File(config.outputFile?.parentFile, tempFolderName)
-        // no need to check if path exists before creating temp folder we already did that in Main.kt
-        Logger.info("Creating temporary folder $tempFolderName")
-        tempFolder.mkdir()
 
+        val tempDir = initializeDownloadTempDir(config, simpleVideo, segmentBodies.size)
+
+        val segmentsToDownload = segmentBodies.filter { (index, _) -> index in tempDir.second }.ifEmpty {
+            segmentBodies
+        }
 
         // reference: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.sync/-semaphore/
         // used to limit the number of concurrent coroutines executing the download tasks.
         val semaphore = Semaphore(config.connections)
-        val totalSegments = segmentBodies.size
-        var downloadedSegments = 0
-        var totalBytesDownloaded = 0L
+        val totalSegments = segmentsToDownload.size
+        val mediaSize = segmentsToDownload.size * 2097152L
+        val downloadedSegments = AtomicInteger(0)
+        val totalBytesDownloaded = AtomicLong(0L)
 
         val startTime = System.currentTimeMillis()
 
         coroutineScope {
-            val downloadJobs = segmentBodies.mapIndexed { i, segmentBody ->
-                async {
+            val downloadJobs = segmentsToDownload.entries.mapIndexed { _, segmentBody ->
+                async(Dispatchers.IO) {
+                    val index = segmentBody.key
                     semaphore.withPermit {
                         var isHeader = true
-                        requestSegment(segmentUrl, segmentBody.toJson(), i).collect { chunk ->
+                        requestSegment(segmentUrl, segmentBody.value.toJson(), index).collect { chunk ->
                             val array = if (isHeader) {
                                 isHeader = false
                                 cryptoHelper.decryptAESCTR(chunk, decryptionKey)
                             } else {
                                 chunk
                             }
-                            File(tempFolder, "segment_$i").appendBytes(array)
-                            totalBytesDownloaded += array.size
+                            File(tempDir.first.name, "segment_$index").appendBytes(array)
+                            totalBytesDownloaded.addAndGet(array.size.toLong())
                         }
                     }
-                    downloadedSegments += 1
-                    displayProgressBar(i + 1, totalSegments, totalBytesDownloaded, downloadedSegments, startTime)
+                    downloadedSegments.incrementAndGet()
+
+                }
+            }
+
+            val progressJob = launch {
+                var lastUpdateTime = System.currentTimeMillis()
+                while (isActive) {
+                    lastUpdateTime = displayProgressBar(
+                        mediaSize,
+                        totalSegments,
+                        totalBytesDownloaded.toLong(),
+                        downloadedSegments.get(),
+                        startTime,
+                        lastUpdateTime
+                    )
+                    delay(1000)
                 }
             }
             downloadJobs.awaitAll()
+            progressJob.cancel()
         }
-        val endTime = System.currentTimeMillis()
-        val duration = (endTime - startTime).toReadableTime()
         println("\n")
-        Logger.info("Download took: $duration")
-        Logger.success("All segments have been downloaded successfully!")
+        Logger.debug("All segments have been downloaded successfully!")
         Logger.info("merging segments into mp4 file...")
-        config.outputFile?.let { mergeSegmentsIntoMp4File(tempFolder, it) }
+        config.outputFile?.let { mergeSegmentsIntoMp4File(tempDir.first, it) }
 
     }
 
@@ -140,10 +154,9 @@ class VideoDownloader: KoinComponent {
                 }
             }
 
-            if (segmentFolderPath.delete()) {
-                Logger.info("Deleted temporary folder at: ${segmentFolderPath.absolutePath}")
-            } else {
+            if (!segmentFolderPath.delete()) {
                 Logger.error("Failed to delete folder: ${segmentFolderPath.absolutePath}")
+//                Logger.info("Deleted temporary folder at: ${segmentFolderPath.absolutePath}")
             }
         } else {
             Logger.error("Folder does not exist or is not a directory: ${segmentFolderPath.absolutePath}")
@@ -196,6 +209,40 @@ class VideoDownloader: KoinComponent {
     }
 
 
+    private fun initializeDownloadTempDir(
+        config: Config,
+        simpleVideo: SimpleVideo?,
+        totalSegments: Int
+    ): Pair<File, List<Int>> {
+        val tempFolderName = "temp_${simpleVideo?.slug}_${simpleVideo?.label}"
+        // no need to check if path exists before creating temp folder we already did that in Main.kt
+        val tempFolder = File(config.outputFile?.parentFile, tempFolderName)
+
+        if (tempFolder.exists() && tempFolder.isDirectory) {
+            Logger.info("Resuming download from temporary folder: $tempFolderName. Continuing from previously downloaded segments.")
+            println("\n")
+            val existingSegments = tempFolder.listFiles { file ->
+                if (file.isFile && file.length() < 2097152) {
+                    file.delete()
+                }
+                file.isFile && file.name.matches(Regex("segment_\\d+"))
+            }?.mapNotNull { file ->
+                file.name.removePrefix("segment_").toIntOrNull()
+            }?.toSet() ?: emptySet()
+
+            val allSegmentNames = (0 until totalSegments).toList()
+
+            val missingSegmentNames = allSegmentNames.filterNot { it in existingSegments }
+
+            return tempFolder to missingSegmentNames
+        } else {
+            Logger.info("Creating temporary folder $tempFolderName")
+            println("\n")
+            tempFolder.mkdirs()
+        }
+        return tempFolder to emptyList()
+    }
+
     private fun generateRanges(size: Long, step: Long = 2097152): List<LongRange> {
         val ranges = mutableListOf<LongRange>()
 
@@ -216,29 +263,29 @@ class VideoDownloader: KoinComponent {
     }
 
 
-    private fun generateSegmentsBody(simpleVideo: SimpleVideo?): List<String> {
+    private fun generateSegmentsBody(simpleVideo: SimpleVideo?): Map<Int, String> {
         Logger.debug("Generating segment POST request body and encrypting the data.")
-        val fragmentList = mutableListOf<String>()
+        val fragmentList = mutableMapOf<Int, String>()
         val encryptionKey = cryptoHelper.getKey(simpleVideo?.slug)
         if (simpleVideo?.size != null) {
             val ranges = generateRanges(simpleVideo.size)
-            ranges.forEach { range ->
+            ranges.forEachIndexed { index, range ->
                 val body = simpleVideo.copy(
                     range = Range(range.first, range.last)
                 )
                 val encryptedBody = cryptoHelper.encryptAESCTR(body.toJson(), encryptionKey)
-                fragmentList.add(encryptedBody)
+                fragmentList[index] = encryptedBody
             }
             Logger.debug("${fragmentList.size} request body generated")
             return fragmentList
         }
-        return emptyList()
+        return emptyMap()
     }
 
 
     private suspend fun requestSegment(url: String, body: String, index: Int? = null): Flow<ByteArray> = flow {
 //        println("\n")
-        Logger.debug("[$index] Starting HTTP POST request to $url with body length: ${body.length}. Body (truncated): \"...$body")
+        Logger.debug("[$index] Starting HTTP POST request to $url with body length: ${body.length}. Body (truncated): \"...${body.takeLast(30)}")
         val response = Unirest.post(url)
             .header("Content-Type", "application/json")
             .body("""{"hash":$body}""")
