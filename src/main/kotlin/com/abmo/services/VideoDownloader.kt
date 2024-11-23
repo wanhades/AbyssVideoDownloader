@@ -68,7 +68,7 @@ class VideoDownloader: KoinComponent {
                             } else {
                                 chunk
                             }
-                            File(tempDir.first.name, "segment_$index").appendBytes(array)
+                            File(tempDir.first, "segment_$index").appendBytes(array)
                             totalBytesDownloaded.addAndGet(array.size.toLong())
                         }
                     }
@@ -222,7 +222,10 @@ class VideoDownloader: KoinComponent {
             Logger.info("Resuming download from temporary folder: $tempFolderName. Continuing from previously downloaded segments.")
             println("\n")
             val existingSegments = tempFolder.listFiles { file ->
-                if (file.isFile && file.length() < 2097152) {
+                if (
+                    file.isFile &&
+                    file.name.matches(Regex("segment_\\d+")) &&
+                    file.length() < 2097152) {
                     file.delete()
                 }
                 file.isFile && file.name.matches(Regex("segment_\\d+"))
