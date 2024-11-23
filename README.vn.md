@@ -74,7 +74,7 @@ Bạn có thể lấy tệp `abyss-dl.jar` theo hai cách:
     - Truy cập [Releases](https://github.com/abdlhay/AbyssVideoDownloader/releases) để tải tệp `abyss-dl.jar` mới nhất.
 
 2. **Tự xây dựng tệp JAR**:
-    - Nếu muốn xây dựng dự án hoặc cần bản cập nhật mới nhất, hãy làm theo hướng dẫn trong phần [**Xây dựng dự án**](#building-the-project).
+    - Nếu muốn xây dựng dự án hoặc cần bản cập nhật mới nhất, hãy làm theo hướng dẫn trong phần [**Xây dựng dự án**](#xây-dựng-dự-án).
 
 ## Sử dụng
 
@@ -83,7 +83,7 @@ Bạn có thể lấy tệp `abyss-dl.jar` theo hai cách:
 Chạy lệnh sau:
 
 ```bash
-java -jar abyss-dl.jar [-H <header>] [--header <header>] [-o <output_file_path>] [-c <number_of_connections>] <id_or_url_with_resolution>
+java -jar abyss-dl.jar <id_or_url_with_resolution> [-H <header>] [--header <header>] [-o <output_file_path>] [-c <number_of_connections>]
 ```
 
 - **ID hoặc URL video**:  
