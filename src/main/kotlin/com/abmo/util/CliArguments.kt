@@ -78,13 +78,6 @@ class CliArguments(private val args: Array<String>) {
 
     /**
      * Parses video IDs, URLs, or file input with associated resolutions.
-     *
-     * This function processes arguments to extract video IDs or URLs along with their
-     * specified resolutions (e.g., "h" for high, "m" for medium, "l" for low). It supports:
-     * - A file path containing multiple lines of video IDs or URLs with resolutions.
-     * - A comma-separated list of video IDs or URLs with resolutions.
-     * - A single video ID or URL with an optional resolution.
-     *
      * @return A list of pairs, where each pair contains a video ID/URL and its resolution.
      *         If no resolution is provided, defaults to "h" (high).
      */

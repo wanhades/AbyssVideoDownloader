@@ -32,6 +32,7 @@ class ProviderDispatcher: KoinComponent {
                 contains("motchill") || equals("subnhanh.win") -> MotchillProvider()
                 equals("animet3.biz") -> Animet3Provider()
                 equals("tvhayw.org") -> TvhaywProvider()
+                equals("catoonhub.com") -> CatoonHubProvider()
 
                 else -> AbyssToProvider()
             }
