@@ -5,6 +5,7 @@ import com.abmo.crypto.CryptoHelper
 import com.abmo.model.*
 import com.abmo.util.displayProgressBar
 import com.abmo.util.toJson
+import com.abmo.util.toObject
 import com.abmo.util.toReadableTime
 import com.mashape.unirest.http.Unirest
 import kotlinx.coroutines.*
@@ -35,7 +36,7 @@ class VideoDownloader: KoinComponent {
     suspend fun downloadSegmentsInParallel(config: Config, videoMetadata: Video?) {
         val simpleVideo = videoMetadata?.toSimpleVideo(config.resolution)
         val segmentBodies = generateSegmentsBody(simpleVideo)
-        val segmentUrl = getSegmentUrl(videoMetadata)
+        val segmentUrl = getSegmentUrl(videoMetadata, config.resolution)
         val decryptionKey = cryptoHelper.getKey(simpleVideo?.size)
 
 
@@ -109,7 +110,7 @@ class VideoDownloader: KoinComponent {
         val startTime = System.currentTimeMillis()
         val simpleVideo = videoMetadata?.toSimpleVideo(config.resolution)
         val segmentBodies = generateSegmentsBody(simpleVideo)
-        val segmentUrl = getSegmentUrl(videoMetadata)
+        val segmentUrl = getSegmentUrl(videoMetadata, config.resolution)
         val decryptionKey = cryptoHelper.getKey(simpleVideo?.size)
 
         for (body in segmentBodies) {
@@ -204,8 +205,21 @@ class VideoDownloader: KoinComponent {
         return matchResult?.groups?.get(1)?.value
     }
 
-    private fun getSegmentUrl(video: Video?): String {
-        return "https://${video?.domain}/${video?.id}"
+    // temporary solution
+    private fun getSegmentUrl(video: Video?, res: String): String {
+        val simpleVideo = video?.toSimpleVideo(res)
+        // don't know what is this 'isBal' boolean parameter for
+        val url = "https://${video?.domain}/tunnel/list?slug=${simpleVideo?.slug}" +
+                "&size=${simpleVideo?.size}&label=${simpleVideo?.label}&md5_id=${simpleVideo?.md5_id}&isBal=1"
+
+        val response = Unirest.get(url)
+            .header("Referer", "https://abysscdn.com/")
+            .header("Origin", "https://abysscdn.com").asString().body
+
+        val urlList =  response.toObject<List<String>>().map { it + "/${video?.id}" }
+
+        return urlList.getOrNull(2) ?: urlList[0]
+//        return "https://${video?.domain}/${video?.id}"
     }
 
 
