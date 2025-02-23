@@ -13,4 +13,11 @@ object Constants {
      */
     var VERBOSE = false
 
+    const val ABYSS_BASE_URL = "https://abysscdn.com"
+
+    val abyssDefaultHeaders = mapOf(
+        "Referer" to "$ABYSS_BASE_URL/",
+        "Origin" to ABYSS_BASE_URL
+    )
+
 }
