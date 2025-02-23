@@ -1,5 +1,6 @@
 package com.abmo.services
 
+import com.abmo.common.Constants.abyssDefaultHeaders
 import com.abmo.common.Logger
 import com.abmo.crypto.CryptoHelper
 import com.abmo.model.*
@@ -213,8 +214,8 @@ class VideoDownloader: KoinComponent {
                 "&size=${simpleVideo?.size}&label=${simpleVideo?.label}&md5_id=${simpleVideo?.md5_id}&isBal=1"
 
         val response = Unirest.get(url)
-            .header("Referer", "https://abysscdn.com/")
-            .header("Origin", "https://abysscdn.com").asString().body
+            .headers(abyssDefaultHeaders)
+            .asString().body
 
         val urlList =  response.toObject<List<String>>().map { it + "/${video?.id}" }
 
@@ -304,7 +305,9 @@ class VideoDownloader: KoinComponent {
 //        println("\n")
         Logger.debug("[$index] Starting HTTP POST request to $url with body length: ${body.length}. Body (truncated): \"...${body.takeLast(30)}")
         val response = Unirest.post(url)
+            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
             .header("Content-Type", "application/json")
+            .headers(abyssDefaultHeaders)
             .body("""{"hash":$body}""")
             .asBinary()
 
