@@ -84,6 +84,15 @@ fun String.findValueByKey(key: String): String? {
     }
 }
 
+fun String.replaceLast(oldValue: String, newValue: String): String {
+    val lastIndex = this.lastIndexOf(oldValue)
+    return if (lastIndex == -1) {
+        this
+    } else {
+        this.substring(0, lastIndex) + newValue + this.substring(lastIndex + oldValue.length)
+    }
+}
+
 fun isValidPath(filePath: String?): Boolean {
     if (filePath.isNullOrBlank()) return false
 

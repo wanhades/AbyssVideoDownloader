@@ -5,6 +5,7 @@ import com.abmo.common.Logger
 import com.abmo.crypto.CryptoHelper
 import com.abmo.executor.JavaScriptExecutor
 import com.abmo.model.*
+import com.abmo.replaceLast
 import com.abmo.util.displayProgressBar
 import com.abmo.util.toJson
 import com.abmo.util.toObject
@@ -196,9 +197,14 @@ class VideoDownloader: KoinComponent {
        val jsCode = Jsoup.parse(html)
            .select("script")
            .find { it.html().contains("subtitle") }
-           ?.html() ?: return null
+           ?.html()
 
-        val functionsRegex = """'\b([A-Za-z0-9]{4,5})\b'\s*:\s*((?:function\s*\([^)]*\)\s*\{[^}]*\}|[^,]+))""".toRegex(RegexOption.DOT_MATCHES_ALL)
+        if (jsCode == null) {
+            Logger.debug("No encrypted video metadata found in the provided HTML.", true)
+            return null
+        }
+
+        val functionsRegex = """'\b([A-Za-z0-9]{4,5})\b'\s*:\s*(function\s*\([^)]*\)\s*\{[^}]*}|[^,]+)""".toRegex(RegexOption.DOT_MATCHES_ALL)
         val matches = functionsRegex.findAll(jsCode)
         val parts = matches.filterNot { it.value.contains("function") }
             .maxBy { it.value.length }.groupValues[2]
@@ -207,12 +213,13 @@ class VideoDownloader: KoinComponent {
         val assignmentRegex = """var\s+$oldVariableName\s*=\s*(_0x[a-fA-F0-9]+)""".toRegex()
         val newVariableName = assignmentRegex.find(jsCode)?.groupValues?.get(1) ?: return null
 
+
         val encryptedMetaDataParts = "java.lang.System.out.println(${parts.replace(oldVariableName, newVariableName)})"
         val windowStartIndex = jsCode.indexOf("window[")
 
         val windowLastIndex = jsCode.lastIndexOf(");")
         val stringToReplace = jsCode.substring(windowStartIndex, windowLastIndex)
-        val javascriptCodeToExecute = jsCode.replace(stringToReplace, encryptedMetaDataParts)
+        val javascriptCodeToExecute = jsCode.replace(stringToReplace, encryptedMetaDataParts).replaceLast("})", "")
         return javaScriptExecutor.runJavaScriptCode(
             javascriptCode = javascriptCodeToExecute
         )
