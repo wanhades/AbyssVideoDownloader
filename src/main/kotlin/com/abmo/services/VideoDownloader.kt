@@ -5,11 +5,7 @@ import com.abmo.common.Logger
 import com.abmo.crypto.CryptoHelper
 import com.abmo.executor.JavaScriptExecutor
 import com.abmo.model.*
-import com.abmo.replaceLast
-import com.abmo.util.displayProgressBar
-import com.abmo.util.toJson
-import com.abmo.util.toObject
-import com.abmo.util.toReadableTime
+import com.abmo.util.*
 import com.mashape.unirest.http.Unirest
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -219,7 +215,8 @@ class VideoDownloader: KoinComponent {
 
         val windowLastIndex = jsCode.lastIndexOf(");")
         val stringToReplace = jsCode.substring(windowStartIndex, windowLastIndex)
-        val javascriptCodeToExecute = jsCode.replace(stringToReplace, encryptedMetaDataParts).replaceLast("})", "")
+        val javascriptCodeToExecute = jsCode.replace(stringToReplace, encryptedMetaDataParts)
+            .replaceLast("})", "")
         return javaScriptExecutor.runJavaScriptCode(
             javascriptCode = javascriptCodeToExecute
         )
