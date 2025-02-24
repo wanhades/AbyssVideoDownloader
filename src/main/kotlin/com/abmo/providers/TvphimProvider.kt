@@ -23,9 +23,10 @@ class TvphimProvider(
             .select("script").html()
 
         val videoID = javaScriptExecutor.runJavaScriptCode(
-            "tvphim.js",
-            "extractVideoID",
-            jsCode)
+            javascriptFileName = "tvphim.js",
+            identifier = "extractVideoID",
+            arguments = arrayOf(jsCode)
+        )
 
         return videoID
     }

@@ -118,7 +118,11 @@ class CryptoHelper : KoinComponent {
     }
 
     fun getKey(value: Any?): String {
-        return javaScriptExecutor.runJavaScriptCode("keyGenerator.js", "generateKey", value)
+        return javaScriptExecutor.runJavaScriptCode(
+            javascriptFileName = "keyGenerator.js",
+            identifier = "generateKey",
+            arguments = arrayOf(value)
+        )
     }
 
 }
