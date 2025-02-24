@@ -10,7 +10,7 @@ class JavaScriptExecutor {
     /**
      * Executes a JavaScript function from a file with the specified arguments.
      *
-     * @param fileName The name of the JavaScript file to load from resources.
+     * @param javascriptFileName The name of the JavaScript file to load from resources.
      * @param identifier The name of the JavaScript function to call.
      * @param arguments The arguments to pass to the JavaScript function.
      * @return The result of the JavaScript function as a String
