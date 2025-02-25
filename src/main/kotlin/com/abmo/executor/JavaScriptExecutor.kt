@@ -1,6 +1,7 @@
 package com.abmo.executor
 
 import org.mozilla.javascript.Context
+import org.mozilla.javascript.EvaluatorException
 import org.mozilla.javascript.Scriptable
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -47,7 +48,11 @@ class JavaScriptExecutor {
             printStream.flush()
             return outputStream.toString().trim() // Return the captured output
 
-        } finally {
+        }
+        catch (e: EvaluatorException) {
+            return ""
+        }
+        finally {
             System.setOut(originalOut) // Restore original System.out
             Context.exit()
         }
