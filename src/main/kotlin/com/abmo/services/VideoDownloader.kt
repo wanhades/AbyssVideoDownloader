@@ -5,6 +5,7 @@ import com.abmo.common.Logger
 import com.abmo.crypto.CryptoHelper
 import com.abmo.executor.JavaScriptExecutor
 import com.abmo.model.*
+import com.abmo.replaceLast
 import com.abmo.util.*
 import com.mashape.unirest.http.Unirest
 import kotlinx.coroutines.*
@@ -200,23 +201,30 @@ class VideoDownloader: KoinComponent {
             return null
         }
 
-        val functionsRegex = """'\b([A-Za-z0-9]{4,5})\b'\s*:\s*(function\s*\([^)]*\)\s*\{[^}]*}|[^,]+)""".toRegex(RegexOption.DOT_MATCHES_ALL)
-        val matches = functionsRegex.findAll(jsCode)
-        val parts = matches.filterNot { it.value.contains("function") }
-            .maxBy { it.value.length }.groupValues[2]
+        val atobRegex = """atob\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)""".toRegex()
+        val oldVariableRegex = """\b(_0x[a-fA-F\d]+)\(""".toRegex()
+        val newVarRegex = """window\[.*?\b(_0x[a-fA-F\d]+)\b.*?async\s*\(\)""".toRegex(RegexOption.DOT_MATCHES_ALL)
+        val potatoRegex = """(_0x[a-fA-F0-9]+)\s*=\s*_0x[a-fA-F0-9]+\(this,\s*function\s*\(\)\s*\{""".toRegex()
 
-        val oldVariableName = parts.substringBefore("(")
-        val assignmentRegex = """var\s+$oldVariableName\s*=\s*(_0x[a-fA-F0-9]+)""".toRegex()
-        val newVariableName = assignmentRegex.find(jsCode)?.groupValues?.get(1) ?: return null
+        val matchResult = atobRegex.find(jsCode)
+        val atobContent = matchResult?.groupValues?.get(1) ?: ""
 
+        val startIndex = jsCode.indexOf("window[")
+        val lastIndex = jsCode.lastIndexOf("});")
+        val stringToReplace = jsCode.substring(startIndex, lastIndex)
 
-        val encryptedMetaDataParts = "java.lang.System.out.println(${parts.replace(oldVariableName, newVariableName)})"
-        val windowStartIndex = jsCode.indexOf("window[")
+        val result = potatoRegex.find(jsCode)
+        val cantNameVariablesAnymore = result?.groupValues?.get(1) ?: ""
 
-        val windowLastIndex = jsCode.lastIndexOf(");")
-        val stringToReplace = jsCode.substring(windowStartIndex, windowLastIndex)
-        val javascriptCodeToExecute = jsCode.replace(stringToReplace, encryptedMetaDataParts)
-            .replaceLast("})", "")
+        val oldVariableName = oldVariableRegex.find(atobContent)?.value?.replace("(", "") ?: return null
+        val newVariableName = newVarRegex.find(stringToReplace)?.groupValues?.get(1) ?: return null
+
+        val javascriptCodeToExecute = jsCode
+            .replace(stringToReplace, "")
+            .replaceLast("});", "")
+            .replace(cantNameVariablesAnymore.plus("(),"), "")
+            .plus("\n java.lang.System.out.println(${atobContent.replace(oldVariableName, newVariableName)})")
+
         return javaScriptExecutor.runJavaScriptCode(
             javascriptCode = javascriptCodeToExecute
         )
