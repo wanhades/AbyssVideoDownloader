@@ -1,5 +1,6 @@
 package com.abmo.executor
 
+import com.abmo.common.Logger
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.EvaluatorException
 import org.mozilla.javascript.Scriptable
@@ -50,6 +51,7 @@ class JavaScriptExecutor {
 
         }
         catch (e: EvaluatorException) {
+            Logger.error("Exception occurred while executing the provided JavaScript code: ${e.message}")
             return ""
         }
         finally {
