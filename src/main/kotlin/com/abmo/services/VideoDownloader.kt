@@ -5,7 +5,6 @@ import com.abmo.common.Logger
 import com.abmo.crypto.CryptoHelper
 import com.abmo.executor.JavaScriptExecutor
 import com.abmo.model.*
-import com.abmo.replaceLast
 import com.abmo.util.*
 import com.mashape.unirest.http.Unirest
 import kotlinx.coroutines.*
