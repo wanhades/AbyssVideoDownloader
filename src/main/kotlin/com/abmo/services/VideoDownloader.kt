@@ -5,6 +5,7 @@ import com.abmo.common.Logger
 import com.abmo.crypto.CryptoHelper
 import com.abmo.executor.JavaScriptExecutor
 import com.abmo.model.*
+import com.abmo.replaceLast
 import com.abmo.util.*
 import com.mashape.unirest.http.Unirest
 import kotlinx.coroutines.*
@@ -200,29 +201,29 @@ class VideoDownloader: KoinComponent {
             return null
         }
 
-        val atobRegex = """atob\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)""".toRegex()
-        val oldVariableRegex = """\b(_0x[a-fA-F\d]+)\(""".toRegex()
-        val newVarRegex = """window\[.*?\b(_0x[a-fA-F\d]+)\b.*?async\s*\(\)""".toRegex(RegexOption.DOT_MATCHES_ALL)
-        val potatoRegex = """(_0x[a-fA-F0-9]+)\s*=\s*_0x[a-fA-F0-9]+\(this,\s*function\s*\(\)\s*\{""".toRegex()
+        val functionsRegex = """\b([A-Za-z0-9]{4,5})\b\s*:\s*(function\s*\([^)]*\)\s*\{[^}]*}|[^,]+)""".toRegex(RegexOption.DOT_MATCHES_ALL)
+        val newVarRegex = """window\[.*?\b([a-zA-Z_$][\w$]*)\b.*?async\s*\(\)""".toRegex(RegexOption.DOT_MATCHES_ALL)
+        val potatoRegex = """(\}\s*)(\w+\(\),\s*)""".toRegex(RegexOption.MULTILINE)
 
-        val matchResult = atobRegex.find(jsCode)
-        val atobContent = matchResult?.groupValues?.get(1) ?: ""
+        val matches = functionsRegex.findAll(jsCode)
+        val parts = matches.filterNot { it.value.contains("function") }
+            .maxBy { it.value.length }.groupValues[2]
 
         val startIndex = jsCode.indexOf("window[")
-        val lastIndex = jsCode.lastIndexOf("});")
+        val lastIndex = jsCode.lastIndexOf("));")
         val stringToReplace = jsCode.substring(startIndex, lastIndex)
+        val newScript = jsCode.replace(stringToReplace, "")
+            .replaceLast("));", "")
+        val cleanedCode = potatoRegex.replace(newScript) { match ->
+            match.groupValues[1]
+        }
 
-        val result = potatoRegex.find(jsCode)
-        val cantNameVariablesAnymore = result?.groupValues?.get(1) ?: ""
-
-        val oldVariableName = oldVariableRegex.find(atobContent)?.value?.replace("(", "") ?: return null
         val newVariableName = newVarRegex.find(stringToReplace)?.groupValues?.get(1) ?: return null
+        val oldVariableName = parts.substringBefore("(")
 
-        val javascriptCodeToExecute = jsCode
-            .replace(stringToReplace, "")
-            .replaceLast("});", "")
-            .replace(cantNameVariablesAnymore.plus("(),"), "")
-            .plus("\n java.lang.System.out.println(${atobContent.replace(oldVariableName, newVariableName)})")
+        val funParts = parts.replace(oldVariableName, newVariableName)
+
+        val javascriptCodeToExecute = cleanedCode.plus("\n java.lang.System.out.println($funParts)")
 
         return javaScriptExecutor.runJavaScriptCode(
             javascriptCode = javascriptCodeToExecute
