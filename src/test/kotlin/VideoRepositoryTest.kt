@@ -20,10 +20,17 @@ class VideoDownloaderIntegrationTest : KoinComponent {
     fun `test video metadata extraction from real URLs returns correct slug`(url: String, expectedSlug: String) {
         val headers = mapOf("Referer" to "https://abyss.to/")
 
-        val result = videoDownloader.getVideoMetaData(url, headers)
+        try {
+            println("testing URL: $url")
+            val result = videoDownloader.getVideoMetaData(url, headers)
+            println("result: $result")
 
-        assertNotNull(result, "Video metadata should not be null for URL: $url")
-        assertEquals(expectedSlug, result.slug, "Expected slug '$expectedSlug' for URL: $url")
+            assertNotNull(result, "video metadata should not be null for URL: $url")
+            assertEquals(expectedSlug, result.slug, "Expected slug '$expectedSlug' for URL: $url")
+        } catch (e: Exception) {
+            println("Error testing URL $url: ${e.message}")
+            throw e
+        }
     }
 
     companion object {
