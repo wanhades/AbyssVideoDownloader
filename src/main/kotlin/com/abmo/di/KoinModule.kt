@@ -2,6 +2,7 @@ package com.abmo.di
 
 import com.abmo.crypto.CryptoHelper
 import com.abmo.executor.JavaScriptExecutor
+import com.abmo.services.HttpClientManager
 import com.abmo.services.ProviderDispatcher
 import com.abmo.services.VideoDownloader
 import com.abmo.util.AbyssJsCodeExtractor
@@ -16,5 +17,6 @@ val koinModule = module {
     single { ProviderDispatcher() }
     single { AbyssJsCodeExtractor() }
     single { Gson() }
+    single { HttpClientManager() }
     factory { (args: Array<String>) -> CliArguments(args) }
 }

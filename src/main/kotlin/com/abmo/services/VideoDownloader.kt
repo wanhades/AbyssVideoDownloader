@@ -25,6 +25,7 @@ class VideoDownloader: KoinComponent {
     private val cryptoHelper: CryptoHelper by inject()
     private val javaScriptExecutor: JavaScriptExecutor by inject()
     private val abyssCodeExtractor: AbyssJsCodeExtractor by inject()
+    private val httpClientManager: HttpClientManager by inject()
 
     /**
      * Downloads video segments in parallel, decrypts the header of each segment, and merges them into a single MP4 file.
@@ -176,13 +177,13 @@ class VideoDownloader: KoinComponent {
      */
     fun getVideoMetaData(url: String, headers: Map<String, String?>?): Video? {
         Logger.debug("Starting HTTP GET request to $url")
-        val response = Unirest.get(url)
-            .headers(headers)
-            .asString()
+        val response = httpClientManager.makeHttpRequest(url, headers)
 
-        val encryptedData = response.body
-        val responseCode = response.status
+        val encryptedData = response?.body
+        val responseCode = response?.statusCode
         Logger.debug("Received response with status $responseCode", responseCode !in 200..299)
+
+        if (encryptedData == null) return null
 
         val encryptedVideoData = extractEncryptedVideoMetaData(encryptedData)
 
@@ -208,7 +209,6 @@ class VideoDownloader: KoinComponent {
         )
     }
 
-    // temporary solution
     private fun getSegmentUrl(video: Video?, res: String): String {
         val simpleVideo = video?.toSimpleVideo(res)
         // don't know what is this 'isBal' boolean parameter for

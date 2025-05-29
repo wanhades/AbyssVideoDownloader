@@ -2,7 +2,6 @@ package com.abmo
 
 import com.abmo.common.Constants
 import com.abmo.common.Constants.ABYSS_BASE_URL
-import com.abmo.common.Constants.USER_AGENT
 import com.abmo.common.Logger
 import com.abmo.model.Config
 import com.abmo.services.ProviderDispatcher
@@ -41,11 +40,8 @@ class Application(private val args: Array<String>) : KoinComponent {
             val dispatcher = providerDispatcher.getProviderForUrl(videoUrl)
             val videoID = dispatcher.getVideoID(videoUrl)
             val defaultHeader = if (videoUrl.isValidUrl()) {
-                mapOf(
-                    "Referer" to videoUrl.extractReferer(),
-                    "User-Agent" to USER_AGENT
-                )
-            } else { mapOf("User-Agent" to USER_AGENT) }
+                mapOf("Referer" to videoUrl.extractReferer())
+            } else { emptyMap() }
 
             val url = "$ABYSS_BASE_URL/?v=$videoID"
             val videoMetadata = videoDownloader.getVideoMetaData(url, headers ?: defaultHeader)
