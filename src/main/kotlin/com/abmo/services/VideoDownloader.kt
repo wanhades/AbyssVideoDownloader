@@ -24,6 +24,7 @@ class VideoDownloader: KoinComponent {
 
     private val cryptoHelper: CryptoHelper by inject()
     private val javaScriptExecutor: JavaScriptExecutor by inject()
+    private val abyssCodeExtractor: AbyssJsCodeExtractor by inject()
 
     /**
      * Downloads video segments in parallel, decrypts the header of each segment, and merges them into a single MP4 file.
@@ -189,7 +190,7 @@ class VideoDownloader: KoinComponent {
     }
 
 
-    private fun extractEncryptedVideoMetaData(html: String): String? {
+    fun extractEncryptedVideoMetaData(html: String): String? {
        val jsCode = Jsoup.parse(html)
            .select("script")
            .find { it.html().contains("subtitle") }
@@ -200,29 +201,7 @@ class VideoDownloader: KoinComponent {
             return null
         }
 
-        val functionsRegex = """\b([A-Za-z0-9]{4,5})\b\s*:\s*(function\s*\([^)]*\)\s*\{[^}]*}|[^,]+)""".toRegex(RegexOption.DOT_MATCHES_ALL)
-        val newVarRegex = """window\[.*?\b([a-zA-Z_$][\w$]*)\b.*?async\s*\(\)""".toRegex(RegexOption.DOT_MATCHES_ALL)
-        val potatoRegex = """(\}\s*)(\w+\(\),\s*)""".toRegex(RegexOption.MULTILINE)
-
-        val matches = functionsRegex.findAll(jsCode)
-        val parts = matches.filterNot { it.value.contains("function") }
-            .maxBy { it.value.length }.groupValues[2]
-
-        val startIndex = jsCode.indexOf("window[")
-        val lastIndex = jsCode.lastIndexOf("));")
-        val stringToReplace = jsCode.substring(startIndex, lastIndex)
-        val newScript = jsCode.replace(stringToReplace, "")
-            .replaceLast("));", "")
-        val cleanedCode = potatoRegex.replace(newScript) { match ->
-            match.groupValues[1]
-        }
-
-        val newVariableName = newVarRegex.find(stringToReplace)?.groupValues?.get(1) ?: return null
-        val oldVariableName = parts.substringBefore("(")
-
-        val funParts = parts.replace(oldVariableName, newVariableName)
-
-        val javascriptCodeToExecute = cleanedCode.plus("\n java.lang.System.out.println($funParts)")
+        val javascriptCodeToExecute = abyssCodeExtractor.getCompleteJsCode(jsCode)
 
         return javaScriptExecutor.runJavaScriptCode(
             javascriptCode = javascriptCodeToExecute
