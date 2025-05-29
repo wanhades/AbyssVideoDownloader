@@ -1,6 +1,6 @@
+import com.abmo.common.Constants.USER_AGENT
 import com.abmo.di.koinModule
 import com.abmo.services.VideoDownloader
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -19,9 +19,10 @@ class VideoDownloaderIntegrationTest : KoinComponent {
     @ParameterizedTest
     @MethodSource("videoUrlsAndSlugs")
     fun `test video metadata extraction from real URLs returns correct slug`(url: String, expectedSlug: String) {
-        assumeTrue(System.getenv("CI") != "true", "Skipping test in CI environment")
-
-        val headers = mapOf("Referer" to "https://abyss.to/")
+        val headers = mapOf(
+            "Referer" to "https://abyss.to/",
+            "User-Agent" to USER_AGENT
+        )
 
         try {
             println("testing URL: $url")
@@ -39,7 +40,7 @@ class VideoDownloaderIntegrationTest : KoinComponent {
     companion object {
         @JvmStatic
         fun videoUrlsAndSlugs(): Stream<Arguments> = Stream.of(
-            Arguments.of("https://abysscdn.com/?v=K8R6OOjS7", "K8R6OOjS7"),
+            Arguments.of("https://abysscdn.com/?v=IHkd0Mws_", "IHkd0Mws_"),
             Arguments.of("https://abysscdn.com/?v=JZMRhKMkP", "JZMRhKMkP"),
             Arguments.of("https://abysscdn.com/?v=2xvPq9YUT", "2xvPq9YUT"),
             Arguments.of("https://abysscdn.com/?v=CibObsG69", "CibObsG69"),
