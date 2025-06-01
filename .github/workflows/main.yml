@@ -45,4 +45,3 @@ jobs:
           tag_name: v1.5
           name: AbyssVideoDownloader-v${{ github.run_number }}
           files: build/libs/abyss-dl.jar
-          draft: true
