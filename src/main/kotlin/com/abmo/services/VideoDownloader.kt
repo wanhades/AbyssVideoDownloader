@@ -175,9 +175,9 @@ class VideoDownloader: KoinComponent {
      * @param headers A map of headers to include in the request.
      * @return The decoded video metadata, or null if the extraction or decoding fails.
      */
-    fun getVideoMetaData(url: String, headers: Map<String, String?>?): Video? {
+    fun getVideoMetaData(url: String, headers: Map<String, String?>?, curlPath: String): Video? {
         Logger.debug("Starting HTTP GET request to $url")
-        val response = httpClientManager.makeHttpRequest(url, headers)
+        val response = httpClientManager.makeHttpRequest(url, headers, curlPath)
 
         val encryptedData = response?.body
         val responseCode = response?.statusCode

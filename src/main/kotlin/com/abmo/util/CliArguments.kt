@@ -113,4 +113,14 @@ class CliArguments(private val args: Array<String>) {
         }
     }
 
+    fun getCurlPath(): String {
+        val index = args.indexOf("--curl")
+        if (index != -1 && index + 1 < args.size) {
+            val curlPath = args[index + 1]
+            return  curlPath
+        }
+        return "curl-impersonate-chrome"
+    }
+
+
 }

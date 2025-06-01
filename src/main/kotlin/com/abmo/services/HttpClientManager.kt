@@ -12,13 +12,13 @@ class HttpClientManager {
         private const val CURL_IMPERSONATE_INSTALL_URL = "https://github.com/lwthiker/curl-impersonate/blob/main/INSTALL.md"
     }
 
-    fun makeHttpRequest(url: String, headers: Map<String, String?>? = null): Response? {
+    fun makeHttpRequest(url: String, headers: Map<String, String?>? = null, curlPath: String): Response? {
         Logger.debug("Starting HTTP GET request to $url")
 
         return if (isLinuxDistro()) {
-            makeLinuxRequest(url, headers)
+            makeRequestWithCurl(url, headers, curlPath)
         } else {
-            makeWindowsRequest(url, headers)
+            makeHttpRequest(url, headers)
         }
     }
 
@@ -32,7 +32,7 @@ class HttpClientManager {
         return linuxDistros.any { osName.contains(it) }
     }
 
-    private fun makeLinuxRequest(url: String, headers: Map<String, String?>?): Response? {
+    private fun makeRequestWithCurl(url: String, headers: Map<String, String?>?, curlPath: String): Response? {
         Logger.debug("Running on Linux distro, using curl-impersonate-chrome")
 
         if (!isCurlImpersonateAvailable()) {
@@ -41,7 +41,7 @@ class HttpClientManager {
         }
 
         return try {
-            val command = buildCurlCommand(url, headers)
+            val command = buildCurlCommand(url, headers, curlPath)
             executeCurlCommand(command)
         } catch (e: Exception) {
             Logger.error("Error executing curl-impersonate-chrome: ${e.message}")
@@ -49,7 +49,7 @@ class HttpClientManager {
         }
     }
 
-    private fun makeWindowsRequest(url: String, headers: Map<String, String?>?): Response? {
+    private fun makeHttpRequest(url: String, headers: Map<String, String?>?): Response? {
         Logger.debug("Running on Windows, using Unirest")
 
         return try {
@@ -92,9 +92,9 @@ class HttpClientManager {
         println(CURL_IMPERSONATE_INSTALL_URL)
     }
 
-    private fun buildCurlCommand(url: String, headers: Map<String, String?>?): List<String> {
+    private fun buildCurlCommand(url: String, headers: Map<String, String?>?, curlPath: String): List<String> {
         val command = mutableListOf(
-            "curl-impersonate-chrome",
+            curlPath,
             "-s",
             "-A", USER_AGENT,
             "-w", "%{http_code}",

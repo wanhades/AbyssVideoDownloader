@@ -25,7 +25,7 @@ class VideoDownloaderIntegrationTest : KoinComponent {
 
         try {
             println("testing URL: $url")
-            val result = videoDownloader.getVideoMetaData(url, headers)
+            val result = videoDownloader.getVideoMetaData(url, headers, "curl-impersonate-chrome")
             println("result: $result")
 
             assertNotNull(result, "video metadata should not be null for URL: $url")
