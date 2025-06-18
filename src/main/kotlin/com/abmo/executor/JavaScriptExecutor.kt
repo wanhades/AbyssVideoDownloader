@@ -1,8 +1,6 @@
 package com.abmo.executor
 
-import com.abmo.common.Logger
 import org.mozilla.javascript.Context
-import org.mozilla.javascript.EvaluatorException
 import org.mozilla.javascript.Scriptable
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -40,6 +38,7 @@ class JavaScriptExecutor {
             context.evaluateString(scope, jsScript, javascriptFileName, 1, null)
             val jsFunction = scope.get(identifier, scope)
 
+
             if (jsFunction is org.mozilla.javascript.Function) {
                 val jsArgs = arguments.map { arg -> Context.javaToJS(arg, scope) }.toTypedArray()
                 val result = jsFunction.call(context, scope, scope, jsArgs)
@@ -47,14 +46,10 @@ class JavaScriptExecutor {
             }
 
             printStream.flush()
+
             return outputStream.toString().trim() // Return the captured output
 
-        }
-        catch (e: EvaluatorException) {
-            Logger.error("Exception occurred while executing the provided JavaScript code: ${e.message}")
-            return ""
-        }
-        finally {
+        }  finally {
             System.setOut(originalOut) // Restore original System.out
             Context.exit()
         }

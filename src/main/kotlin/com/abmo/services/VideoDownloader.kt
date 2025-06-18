@@ -5,6 +5,8 @@ import com.abmo.common.Logger
 import com.abmo.crypto.CryptoHelper
 import com.abmo.executor.JavaScriptExecutor
 import com.abmo.model.*
+import com.abmo.model.dto.VideoDto
+import com.abmo.model.dto.toVideo
 import com.abmo.util.*
 import com.mashape.unirest.http.Unirest
 import kotlinx.coroutines.*
@@ -185,9 +187,10 @@ class VideoDownloader: KoinComponent {
 
         if (encryptedData == null) return null
 
-        val encryptedVideoData = extractEncryptedVideoMetaData(encryptedData)
+        val videoData = extractEncryptedVideoMetaData(encryptedData)?.toObject<VideoDto>()
+        val decodedSources = cryptoHelper.decodeEncryptedString(videoData?.sourcesEncoded)?.sources
+        return videoData?.toVideo(decodedSources)
 
-        return cryptoHelper.decodeEncryptedString(encryptedVideoData)
     }
 
 
@@ -204,9 +207,9 @@ class VideoDownloader: KoinComponent {
 
         val javascriptCodeToExecute = abyssCodeExtractor.getCompleteJsCode(jsCode)
 
-        return javaScriptExecutor.runJavaScriptCode(
-            javascriptCode = javascriptCodeToExecute
-        )
+
+        val result =  javaScriptExecutor.runJavaScriptCode(javascriptCode = javascriptCodeToExecute)
+        return result
     }
 
     private fun getSegmentUrl(video: Video?, res: String): String {
