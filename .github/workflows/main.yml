@@ -28,11 +28,11 @@ jobs:
           distribution: 'temurin'
 
       - name: Make Gradle Executable
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
 
       - name: Build AbyssVideoDownloader
         run: |
-          gradlew build
+          ./gradlew build
 
       - name: Create Release
         id: create_release
