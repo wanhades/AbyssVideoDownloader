@@ -27,24 +27,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Clone Repository
-        run: |
-          git clone https://github.com/abdlhay/AbyssVideoDownloader.git
-          cd AbyssVideoDownloader
-
       - name: Make Gradle Executable
-        run: chmod +x AbyssVideoDownloader/gradlew
+        run: chmod +x gradlew
 
       - name: Build AbyssVideoDownloader
         run: |
-          cd AbyssVideoDownloader
-          ./gradlew build
+          gradlew build
 
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2.0.6
         with:
-          tag_name: v1.5.9
-          name: AbyssVideoDownloader-v${{ github.run_number }}
-          files: AbyssVideoDownloader/build/libs/abyss-dl.jar
-          draft: true
+          tag_name: latest
+          name: AbyssVideoDownloader
