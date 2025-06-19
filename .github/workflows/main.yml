@@ -34,8 +34,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build AbyssVideoDownloader
-        run: |
-          ./gradlew build
+        run: ./gradlew build
 
       - name: Create Release
         id: create_release
@@ -43,3 +42,5 @@ jobs:
         with:
           tag_name: latest
           name: AbyssVideoDownloader
+          body: Latest automated build of AbyssVideoDownloader.
+          files: build/libs/abyss-dl.jar
